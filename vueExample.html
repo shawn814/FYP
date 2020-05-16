@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Example</title>
+</head>
+
+<body>
+    <div id="app">
+        <!-- Example 1 -->
+        <!-- Hover the title to see title -->
+        <h1 v-bind:title="titleDescription">{{title}}  </h1>
+        <input type="text" v-model="content">
+        <div v-text="content"></div>
+
+
+
+        <!-- Example 2 -->
+        <ul>
+            <li v-for="it in items">{{it}}</li>
+        </ul>
+        <input type="text" v-model="item">
+        <button @click="items.push(item)">Add</button>
+    </div>
+
+</body>
+<script src="js/vue.js"></script>
+<script src="js/jquery.min.js"></script>
+<script>
+    new Vue({
+        el: "#app",
+        data:{
+            title: "Examples",
+            titleDescription:"What u want",
+            content:"Please type something",
+            item:"",
+            items:[],
+        }
+    });
+</script>
+
+</html>

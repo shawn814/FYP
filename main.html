@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        body {
+            margin: 0;
+        }
+
+        .draw:active {
+            outline: 1px solid lightskyblue;
+        }
+
+        svg {
+            border: 1px solid black;
+        }
+
+        #nav {
+            position: absolute;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="main">
+        <div id="nav">
+            <!-- Creating radio buttons -->
+            <div id="type">
+                <label><input type="radio" name="type" value="pen"> Pen </label>
+                <label><input type="radio" name="type" value="cursor"> Cursor </label>
+            </div>
+
+        </div>
+        <div id="content">
+            <svg id="draw" width="100%" height="100vh"></svg>
+        </div>
+    </div>
+    <script src="js/vue.js"></script>
+    <script src="js/jquery.min.js"></script>
+    <script>
+        let drawing = false;
+        let startPosX = startPosY = 0;
+        let line_id = 0;
+        let cursor = false;
+        let pen = false;
+
+
+
+        var app3 = new Vue({
+            el: '#main',
+            data: {
+                type: "",
+            },
+            computed: {
+                reversedMessage: function () {
+                    // `this` points to the vm instance
+                    console.log("This is ");
+                }
+            }
+        })
+
+
+
+        $('#cursor').on('click', e => {
+            e.preventDefault();
+            cursor = true;
+            pen = false;
+        });
+        $('#pen').on('click', e => {
+            e.preventDefault();
+            cursor = false;
+            pen = true;
+        });
+
+        $('svg').on('mousedown', function (e) {
+            e.preventDefault();
+            startPosX = e.pageX;
+            StartPosY = e.pageY;
+            drawing = true;
+        });
+
+        $('svg').on('mousemove', function (e) {
+            if (drawing && pen == true) {
+                if ($(`#${line_id}`).length == "1") {
+                    $(`#${line_id}`).attr("d", $(`#${line_id}`).attr("d") + ` L ${e.pageX} ${e.pageY}`);
+                }
+                else {
+                    let newPath = document.createElementNS("http://www.w3.org/2000/svg", "path");
+                    newPath.setAttribute('id', line_id);
+                    newPath.setAttribute('class', "draw");
+                    newPath.setAttribute('d', `M ${startPosX} ${StartPosY} L ${e.pageX} ${e.pageY}`);
+                    newPath.setAttribute('stroke', 'black');
+                    newPath.setAttribute('stroke-width', '3px');
+                    newPath.setAttribute('fill', 'none');
+
+                    $(this).append(newPath);
+                }
+            }
+        });
+
+        $('svg').on('mouseup', function (e) {
+            drawing = false;
+            line_id++;
+        });
+    </script>
+</body>
+
+</html>

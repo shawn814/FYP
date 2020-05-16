@@ -1,72 +1,68 @@
 <!DOCTYPE html>
 <html lang="en">
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>index</title>
-    <style>
-        body {
-            height: 100vh;
-            margin: 0;
-            position: relative;
-        }
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>index</title>
+        <style>
+            body {
+                height: 100vh;
+                margin: 0;
+                position: relative;
+            }
 
-        svg {
-            position: absolute;
-            height: 100%;
-            width: 100%;
-            background-color: #eee;
-        }
+            svg {
+                position: absolute;
+                height: 100%; 
+                width: 100%;
+                background-color: #eee;
+            }
 
-        path {
-            fill: none;
-            stroke: #000;
-            stroke-width: 2px;
-            stroke-linejoin: round;
-        }
-    </style>
-</head>
+            path {
+                fill: none;
+                stroke-linejoin: round;
+            }
+        </style>
+    </head>
 
-<body>
-    <svg></svg>
+    <body>
+        <svg></svg>
 
-    <!-- JS -->
-    <script src="js/jquery.min.js"></script>
-    <script>
-        let drawing = false;
-        let startPosX = 0;
-        let startPosY = 0;
-        let line_id = 0;
+        <!-- JS -->
+        <script src="js/jquery.min.js"></script>
+        <script>
+            let drawing = false;
+            let startPosX = startPosY = 0;
+            let line_id = 0;
 
-        $('svg').on('mousedown', function (e) {
-            startPosX = e.pageX;
-            StartPosY = e.pageY;
-            drawing = true;
-        });
+            $('svg').on('mousedown', function (e) {
+                startPosX = e.pageX;
+                StartPosY = e.pageY;
+                drawing = true;
+            });
 
-        $('svg').on('mousemove', function (e) {
-            if (drawing) {
-                if ($(`#${line_id}`).length == "1") {
-                    $(`#${line_id}`).attr("d", $(`#${line_id}`).attr("d") + ` L ${e.pageX} ${e.pageY}`);
-                }
-                else {
-                    let newPath = document.createElementNS("http://www.w3.org/2000/svg", "path");
+            $('svg').on('mousemove', function (e) {
+                if (drawing) {
+                    if ($(`#${line_id}`).length == "1") {
+                        $(`#${line_id}`).attr("d", $(`#${line_id}`).attr("d") + ` L ${e.pageX} ${e.pageY}`);
+                    }
+                    else {
+                        let newPath = document.createElementNS("http://www.w3.org/2000/svg", "path");
                         newPath.setAttribute('id', line_id);
                         newPath.setAttribute('d', `M ${startPosX} ${StartPosY} L ${e.pageX} ${e.pageY}`);
                         newPath.setAttribute('stroke', 'black');
                         newPath.setAttribute('stroke-width', '3px');
-                    
-                    $(this).append(newPath);
+
+                        $(this).append(newPath);
+                    }
                 }
-            }
-        });
+            });
 
-        $('svg').on('mouseup', function (e) {
-            drawing = false;
-            line_id++;
-        });
-    </script>
-</body>
-
+            $('svg').on('mouseup', function (e) {
+                drawing = false;
+                line_id++;
+            });
+        </script>
+    </body>
 </html>
