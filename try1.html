@@ -10,60 +10,76 @@
     <style>
         svg {
             border: 1px solid brown;
+            background: #ddd;
+            font: 10px sans-serif;
+            cursor: crosshair;
+        }
+
+        .line {
+            cursor: crosshair;
+            fill: none;
+            stroke: #000;
+            stroke-width: 2px;
+            stroke-linejoin: round;
         }
     </style>
 </head>
 
 <body>
-    <!-- <svg id="drawing" xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink" width="300" height="300">
-      </svg> -->
+    <svg id="drawing" xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink"
+        width="300" height="300">
+    </svg>
     <div id="pp"></div>
 </body>
 <script>
     let clickStatus = false;
-    let draw = "";
-    SVG.on(document, 'DOMContentLoaded', function () {
-        // let draw = $("#drawing")[0];
-        draw = SVG().addTo('body').size('100%', '100vh');
-        var rect = draw.rect(100, 100).attr({ fill: '#f06' })
+    var ptdata = [];
+    var session = [];
+    var path;
+    var line = SVG().line
+    let svg = SVG("#drawing");
+    
+        SVG.on(document, 'DOMContentLoaded', function (e) {
+            // draw = SVG().addTo('body').size('100%', '100vh');
+            var rect = svg.rect(100, 100).attr({ fill: '#f06' })
 
-        // draw.on('click', function (event) {
-        //     // var xPosition = event.pageX;
-        //     // var yPosition = event.pageY;
-        //     // console.log(xPosition + "|" + yPosition);
-        //     clickStatus = !clickStatus;
-        //     console.log(clickStatus);
-        // });
-        // draw.on('mousemove',e=>{
-        //     if (clickStatus == true) {
-        //         var pageCoords = "( " + e.pageX + ", " + e.pageY + " )";
-        //         console.log(pageCoords);
-        //     }
-        // });
-        draw.addEventListener("mousedown", function (en) {
-            // mouseDownFunction(e);
-            draw.onmousemove = function (e) {
-                // mouseMoveFunction(e);
-                var pageCoords = "( " + e.pageX + ", " + e.pageY + " )";
-                console.log(pageCoords);
-            }
+
+            // draw.on('click', function (event) {
+            //     // var xPosition = event.pageX;
+            //     // var yPosition = event.pageY;
+            //     // console.log(xPosition + "|" + yPosition);
+            //     clickStatus = !clickStatus;
+            //     console.log(clickStatus);
+            // });
+            // draw.on('mousemove',e=>{
+            //     if (clickStatus == true) {
+            //         var pageCoords = "( " + e.pageX + ", " + e.pageY + " )";
+            //         console.log(pageCoords);
+            //     }
+            // });
+
+
+
+
+
         });
 
-        // draw.addEventListener("mouseup", function (e) {
-        //     draw.onmousemove = null;
-        // });
+    svg.on('mousedown', e => {
+        clickStatus = true;
+        ptdata = [];
+        ptdata.push({ x: e.clientX, y: e.clientY });
 
     });
-
-
-        // var draw = SVG("#drawing");
-        // var rect = draw.rect(100, 100).attr({ fill: '#f06' })
-
-        // draw.on('click',e=>{
-        //     var xPosition = e.clientX;
-        //     var yPosition = e.clientY;
-        //     console.log(xPosition+ "|"+ yPosition);
-        // });
+    svg.on('mousemove', e => {
+        // mouseMoveFunction(e);
+        if (clickStatus == true) {
+            ptdata.push({ x: e.clientX, y: e.clientY });
+            console.log(ptdata);
+        }
+    });
+    svg.on('mouseup', e => {
+        clickStatus = false;
+    });
 
 </script>
 

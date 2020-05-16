@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -38,7 +39,14 @@
         let startPosX = 0;
         let startPosY = 0;
         let line_id = 0;
+        let gradient = 0;
+        let mx = 0;
+        let my = 0;
 
+        $('svg').on('click',function(e){
+            mx = e.pageX;
+            my = e.pageY;
+        })
         $('svg').on('mousedown', function (e) {
             startPosX = e.pageX;
             StartPosY = e.pageY;
@@ -48,7 +56,8 @@
         $('svg').on('mousemove', function (e) {
             if (drawing) {
                 if ($(`#${line_id}`).length == "1") {
-                    $(`#${line_id}`).attr("d", $(`#${line_id}`).attr("d") + ` L ${e.pageX} ${e.pageY}`);
+                    console.log(mx,my,e.pageY,e.pageX);
+                    $(`#${line_id}`).attr("d", $(`#${line_id}`).attr("d") + ` C ${mx} ${my}, ${e.pageX} ${e.pageY}, ${(e.pageY - my) / 2} ${(e.pageX -mx)/2}`);
                 }
                 else {
                     let newPath = document.createElementNS("http://www.w3.org/2000/svg", "path");
@@ -59,6 +68,8 @@
                     
                     $(this).append(newPath);
                 }
+                mx = e.pageX;
+                my = e.pageY;
             }
         });
 
@@ -66,6 +77,13 @@
             drawing = false;
             line_id++;
         });
+
+        function findGradient(x1,y1,x2,y2){
+            let dx = x2-x1;
+            let dy = y2-y1;
+            let m = dy/dx;
+            console.log(dx + "|" + dy + "|" + m);
+        }
     </script>
 </body>
 
