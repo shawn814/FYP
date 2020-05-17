@@ -11,7 +11,7 @@
     <div id="app">
         <!-- Example 1 -->
         <!-- Hover the title to see title -->
-        <h1 v-bind:title="titleDescription">{{title}}  </h1>
+        <h1 v-bind:title="titleDescription">{{title}} </h1>
         <input type="text" v-model="content">
         <div v-text="content"></div>
 
@@ -23,20 +23,103 @@
         </ul>
         <input type="text" v-model="item">
         <button @click="items.push(item)">Add</button>
+
+
+        <!-- Example 3 -->
+        <h2 v-if="status">Here is true</h2>
+        <h2 v-else>Here is false</h2>
+
+        <div v-for="it in e3">
+            {{it.text}}
+            <div v-if="it.checked=='a'">Checked!!!
+                <button @click="it.checked='b'">click</button>
+            </div>
+            <div v-if="it.checked=='b'">
+                <button @click="it.checked='a'">click</button>
+            </div>
+        </div>
+
+        <!-- Example 4 -->
+        <input type="text" v-model="price">
+        <div v-text="money"></div>
+        <!-- Example 5 -->
+        <div>{{moneyFormat(price)}}</div>
+
+        <!-- Example 6 -->
+        <pp v-for="item6 in e6" :key="item6.id" :ii="item6.id" :item="item6"></pp>
+
+        <!-- Example 7  -->
+        <!-- <pp v-for="item6 in e6" :key="item6.id" :item="item6"></pp> -->
     </div>
 
 </body>
 <script src="js/vue.js"></script>
 <script src="js/jquery.min.js"></script>
 <script>
+    // Example 6
+    Vue.component("pp", {
+        props: ['item','ii'],   
+        template: `
+        <div>
+            <p> {{item.id}}</p>
+            <p @click="toggle =! toggle">Details</p>
+            <p v-if="toggle">{{ item.description}}</p>
+            <p>{{ii}}</p>
+            =======================================
+        </div>
+        `,
+        data: function () {
+            return {
+                toggle: false,
+            }
+        }
+
+    });
+    
+
+// import Vue from 'vue';
+// import pp from './example7.vue';
     new Vue({
         el: "#app",
-        data:{
+        // Example 7
+        // components:{
+        //     pp,
+        // },
+        data: {
             title: "Examples",
-            titleDescription:"What u want",
-            content:"Please type something",
-            item:"",
-            items:[],
+            titleDescription: "What u want",
+            content: "Please type something",
+            item: "",
+            items: [],
+            status: true,
+            e3: [
+                { text: '1', checked: "a" },
+                { text: '2', checked: "a" },
+                { text: '3', checked: "b" },
+                { text: '4', checked: "b" },
+
+            ],
+            price: 0,
+            item6:"",
+            e6: [
+                { id: 1, description: "aad" },
+                { id: 2, description: "basd" },
+                { id: 3, description: "bad" },
+                { id: 4, description: "aasd" },
+            ]
+
+        },
+        computed: {
+            // Example 4
+            money: function () {
+                return 'RM ' + this.price;
+            }
+        },
+        methods: {
+            // Example 5
+            moneyFormat: function (price) {
+                return 'RM ' + price + '.00';
+            }
         }
     });
 </script>
