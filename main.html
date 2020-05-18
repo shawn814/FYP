@@ -1,171 +1,207 @@
 <!DOCTYPE html>
 <html lang="en">
-<!-- Target
+    <!-- Target
 1) Resize and movable
 2) Add Shape
 3) Add textbox-->
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-    <style>
-        body {
-            margin: 0;
-        }
 
-        svg {
-            border: 1px solid black;
-        }
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Document</title>
+        <style>
+            body {
+                margin: 0;
+            }
 
-        #nav {
-            position: absolute;
-        }
+            svg {
+                border: 1px solid black;
+            }
 
-        #type label {
-            border: 1px solid black;
-            padding: 5px;
+            #nav {
+                position: absolute;
+            }
 
-        }
-
-        .typeActive {
-            background-color: lightslategray;
-        }
-
-        path{
-            display: block;
-        }
-        
-        path.choosen {
-            outline: 1px dashed blue;
-            cursor: pointer;
-        }
-
-        /* path:hover {
-            cursor: pointer;
-        } */
-    </style>
-</head>
-
-<body>
-    <div id="main">
-        <div id="nav">
-            <!-- Creating radio buttons -->
-            <div id="type" v-on:change="changeType(type)">
-                <label v-bind:class="{ typeActive: type=='pen' }"><input type="radio" name="type" value="pen"
-                        v-model="type"> Pen </label>
-                <label v-bind:class="{ typeActive: type=='cursor' }"><input type="radio" name="type" value="cursor"
-                        v-model="type"> Cursor </label>
-                <label v-bind:class="{ typeActive: type=='resize' }"><input type="radio" name="type" value="resize"
-                        v-model="type"> Resize </label>
-                <label v-bind:class="{ typeActive: type=='shape' }"><input type="radio" name="type" value="shape"
-                        v-model="type"> Shape </label>
-            </div>
-
-        </div>
-        <div id="content">
-            <svg id="draw" width="100%" height="100vh"></svg>
-        </div>
-    </div>
-    <script src="js/vue.js"></script>
-    <script src="js/jquery.min.js"></script>
-    <script>
-        let drawing = false;
-        let startPosX = 0;
-        let startPosY = 0;
-        let line_id = 0;
-        let choosenId = -1;
-
-
-
-        var app3 = new Vue({
-            el: '#main',
-            data: {
-                type: "pen",
-            },
-            methods: {
-                changeType(a) {
-                    console.log(a);
-                    if (a == "pen") {
-                        drawOn();
-
-                    } else if (a == "cursor") {
-                        cursorOn();
-                    } else {
-                        cursor = false;
-                        pen = false;
-                    }
-                },
-
-            },
-            computed: {
+            #type label {
+                border: 1px solid black;
+                padding: 5px;
 
             }
-        });
 
-        function drawOn() {
-            $(`#${choosenId}`).attr("class", "");
+            .typeActive {
+                background-color: lightslategray;
+            }
 
-            $('svg').on('mousedown', function (e) {
-                startPosX = e.pageX;
-                startPosY = e.pageY;
-                drawing = true;
-                console.log(startPosX, startPosY)
-                console.log("ll");
-            });
-            $('svg').on('mousemove', function (e) {
-                if (drawing) {
-                    if ($(`#${line_id}`).length == "1") {
-                        $(`#${line_id}`).attr("d", $(`#${line_id}`).attr("d") + ` L ${e.pageX} ${e.pageY}`);
+            path {
+                display: block;
+            }
+
+            path.choosen {
+                outline: 1px dashed blue;
+                cursor: move;
+            }
+
+            [v-cloak] {
+                display: none;
+            }
+
+            /* path:hover {
+            cursor: pointer;
+        } */
+        </style>
+    </head>
+
+    <body>
+        <div id="main" v-cloak>
+            <div id="nav">
+                <!-- Creating radio buttons -->
+                <div id="type">
+                    <label v-for="it in types" v-bind:class="{ typeActive: type==it }">
+                        <input type="radio" name="type" :value="it" v-model="type" v-on:change="menu">
+                        {{it.charAt(0).toUpperCase() + it.slice(1)}}
+                    </label>
+                </div>
+
+            </div>
+            <div id="content">
+                <svg id="draw" width="100%" height="100vh"></svg>
+            </div>
+        </div>
+
+        <script src="js/vue.js"></script>
+        <script src="js/jquery.min.js"></script>
+        <script>
+            let line_id = 0;
+            let choosenId = -1;
+
+            var app3 = new Vue({
+                el: '#main',
+                data: {
+                    types: ["pen", "cursor", "resize", "shape"],
+                    type: "pen",
+
+                },
+                components: {
+
+                },
+                methods: {
+                    menu: function () {
+                        if (this.type == "cursor") {
+                            $('svg').off('mousedown');
+                            $('svg').off('mousemove');
+                            $('svg').off('mouseup');
+                            $('path').on('click', function (e) {
+                                if (choosenId < 0) {
+                                    choosenId = $(this).data('id');
+                                    $(`#${choosenId}`).attr("class", "choosen");
+                                } else {
+                                    $(`#${choosenId}`).attr("class", "");
+                                    choosenId = $(this).data('id');
+                                    $(`#${choosenId}`).attr("class", "choosen");
+
+                                    // let temp = document.getElementById(choosenId);
+                                    // temp.className = "";
+                                    // temp = document.getElementById(choosenId);
+                                    console.log(choosenId);
+                                    // temp.className = "choosen";
+                                }
+                            });
+
+                            let dragable = false;
+
+                            $('svg *').on('mousedown', function (e) {
+
+                            });
+
+                            $('svg *').on('mousemove', function (e) {
+
+                            });
+                        }
+                        else if (this.type == "pen") {
+                            // Drawing =========================================================================================
+                            let drawing = false;
+                            let startPosX = 0;
+                            let startPosY = 0;
+
+                            $('svg').on('mousedown', function (e) {
+                                startPosX = e.pageX;
+                                startPosY = e.pageY;
+                                drawing = true;
+                            });
+
+                            $('svg').on('mousemove', function (e) {
+                                if (drawing) {
+                                    if ($(`#${line_id}`).length == "1") {
+                                        $(`#${line_id}`).attr("d", $(`#${line_id}`).attr("d") + ` L ${e.pageX} ${e.pageY}`);
+                                    }
+                                    else {
+                                        let newPath = document.createElementNS("http://www.w3.org/2000/svg", "path");
+                                        newPath.setAttribute('id', line_id);
+                                        newPath.setAttribute('data-id', line_id);
+                                        newPath.setAttribute('d', `M ${startPosX} ${startPosY} L ${e.pageX} ${e.pageY}`);
+                                        newPath.setAttribute('stroke', 'black');
+                                        newPath.setAttribute('stroke-width', '3px');
+                                        newPath.setAttribute('fill', 'none');
+                                        newPath.setAttribute('stroke-linejoin', 'round');
+                                        newPath.setAttribute('stroke-linecap', 'round');
+
+                                        $(this).append(newPath);
+                                    }
+                                }
+                            });
+
+                            $('svg').on('mouseup', function (e) {
+                                if (drawing) line_id++;
+                                drawing = false;
+
+                            });
+
+                            $('svg').on('mouseleave', function (e) {
+                                if (drawing) line_id++;
+                                drawing = false;
+                            });
+                            $('path').off('click');
+                        }
+                        else {
+
+                        }
                     }
-                    else {
-                        let newPath = document.createElementNS("http://www.w3.org/2000/svg", "path");
-                        newPath.setAttribute('id', line_id);
-                        newPath.setAttribute('data-id', line_id);
-                        newPath.setAttribute('d', `M ${startPosX} ${startPosY} L ${e.pageX} ${e.pageY}`);
-                        newPath.setAttribute('stroke', 'black');
-                        newPath.setAttribute('stroke-width', '3px');
-                        newPath.setAttribute('fill', 'none');
-                        newPath.setAttribute('stroke-linejoin', 'round');
+                },
+                computed: {
 
-                        $(this).append(newPath);
+                },
+                created() {
+                    // Realtime template demo
+                    if (typeof (EventSource) !== "undefined") {
+                        var source = new EventSource("router.php", {
+                            withCredentials: true
+                        });
+
+                        source.addEventListener('message', event => {
+                            if (this.code != event.data) {
+                                this.code = event.data;
+                                this.genQR();
+                            }
+                        }, false);
+
+                        source.onerror = function (event) {
+                            if (event.readyState == EventSource.CLOSED) {
+                                console.log('Event was closed');
+                            } else {
+                                console.log("EventSource failed:", event);
+                            }
+                        }
+                    } else {
+                        console.log("Sorry, your browser does not support server-sent events...");
                     }
+                },
+                mounted() {
+                    this.menu();
+
+
                 }
             });
-            $('svg').on('mouseup', function (e) {
-                drawing = false;
-                line_id++;
-            });
-
-            // Other things
-            $('path').off('click');
-        }
-        function cursorOn() {
-            $('svg').off('mousedown');
-            $('svg').off('mousemove');
-            $('svg').off('mouseup');
-            $('path').on('click', function (e) {
-                console.log("hahha");
-                if (choosenId< 0) {
-                    choosenId = $(this).data('id');
-                    $(`#${choosenId}`).attr("class", "choosen");
-                }else{
-                    $(`#${choosenId}`).attr("class", "");
-                    choosenId = $(this).data('id');
-                    $(`#${choosenId}`).attr("class", "choosen");
-
-                    // let temp = document.getElementById(choosenId);
-                    // temp.className = "";
-                    // temp = document.getElementById(choosenId);
-                    console.log(choosenId);
-                    // temp.className = "choosen";
-                }
-
-            });
-        }
-
-
-        drawOn();
-    </script>
-</body>
+        </script>
+    </body>
 
 </html>
