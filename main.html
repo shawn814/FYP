@@ -102,7 +102,7 @@
 
                         let dragable = false;
 
-                        $('path').on('mousedown', function (e) {
+                        $('svg *').on('mousedown', function (e) {
                             if (e.target.tagName == "path") {
                                 if (choosenId < 0) {
                                     choosenId = $(this).data('id');
@@ -166,7 +166,7 @@
                         let startPosX = 0;
                         let startPosY = 0;
 
-                        $('path').off('mousedown');
+                        $('svg *').off('mousedown');
                         $('svg').off('mousemove');
                         $('svg').off('mouseup');
                         $(`#${choosenId}`).attr("class", "");
