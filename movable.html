@@ -15,14 +15,22 @@
     .draggable {
         cursor: move;
     }
+    svg{
+        outline: 1px solid red;
+    }
+    path{
+        border:1px solid black;
+    }
 </style>
 
 <body>
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 30 20" onload="makeDraggable(evt)">
-        <!-- <rect x="0" y="0" width="30" height="20" fill="#fafafa" />
+    <svg xmlns="http://www.w3.org/2000/svg" width="100%" onload="makeDraggable(evt)">
+
+    <!-- <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 30 20" onload="makeDraggable(evt)"> -->
+        <rect x="0" y="0" width="30" height="20" fill="#fafafa" />
         <rect class="draggable" x="4" y="5" width="8" height="10" fill="#007bff" />
-        <rect class="static" x="18" y="5" width="8" height="10" fill="#888" /> -->
-        <path id="1" x="4"  class="draggable" data-id="1" d="M 594 180 L 592 179 L 588 177 L 583 176 L 576 176 L 564 178 L 554 183 L 544 194 L 539 204 L 536 219 L 536 231 L 541 244 L 555 255 L 598 260 L 619 260 L 632 255 L 642 247 L 648 236 L 649 228 L 642 194 L 639 191 L 636 188 L 623 181 L 613 178 L 584 174 L 578 174 L 573 174 L 566 174" stroke="black" stroke-width="3px" fill="none" stroke-linejoin="round" stroke-linecap="round"></path>
+        <rect class="static" x="18" y="5" width="8" height="10" fill="#888" />
+        <!-- <path id="0" class="draggable" d="M 56 36 L 56 36 L 55 36 L 54 36 L 53 36 L 53 37 L 52 37 L 51 38 L 50 38 L 49 38 L 48 38 L 48 39 L 48 39 L 47 40 L 47 41 L 46 41 L 45 41 L 44 42 L 43 42 L 43 43 L 42 43 L 41 43 L 40 44 L 40 44 L 40 44 L 39 44 L 39 45 L 38 45 L 37 45 L 37 46 L 36 46 L 37 46 L 38 46 L 39 46 L 40 46 L 40 46 L 41 46 L 42 46 L 43 46 L 44 46 L 45 46 L 47 45 L 48 45 L 50 45 L 52 45 L 53 45 L 54 45 L 56 45 L 57 45 L 57 44 L 58 44 L 60 44 L 62 44 L 63 44 L 64 44 L 64 44 L 65 44 L 68 43 L 71 43 L 73 43 L 74 43 L 75 43 L 77 43 L 78 43 L 79 43 L 80 43 L 80 44 L 80 44 L 80 45 L 80 46 L 80 47 L 80 48 L 79 48 L 79 49 L 78 49 L 78 50 L 78 51 L 77 51 L 78 51 L 79 51 L 80 51 L 80 51 L 81 51 L 82 51 L 83 51 L 84 51 L 85 51 L 86 51 L 88 51 L 88 51 L 90 51 L 91 51 L 92 51 L 95 51 L 96 51 L 96 51 L 97 51 L 98 51 L 99 51 L 100 51 L 100 52 L 100 52 L 100 53 L 100 54 L 100 55 L 100 56 L 100 57 L 99 57 L 99 58 L 99 59 L 98 59 L 98 60 L 97 60 L 97 60 L 97 61 L 96 61 L 96 62 L 96 62 L 96 63 L 96 64 L 96 64 L 97 64 L 99 64 L 102 64 L 103 64 L 104 64 L 106 64 L 107 64 L 109 64 L 110 64 L 112 64 L 112 64 L 115 64 L 116 64 L 117 64 L 118 64 L 120 64 L 120 65 L 120 65 L 121 65 L 121 66 L 122 67 L 122 68 L 123 68 L 123 68 L 123 69 L 123 70 L 123 72 L 123 73 L 123 74 L 123 75 L 123 76 L 123 76 L 124 76 L 125 76 L 126 76 L 127 76 L 128 76 L 128 76 L 129 76 L 130 76 L 131 76 L 132 76 L 133 76" stroke="black" stroke-width="3px" fill="none"></path> -->
     </svg>
 
 </body>

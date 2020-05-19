@@ -90,55 +90,98 @@
                 menu: function () {
                     if (this.type == "cursor") {
                         let clickStatus = false;
+                        let position;
+                        let cursorPosition;
                         // 
                         $('svg').off('mousedown');
                         $('svg').off('mousemove');
                         $('svg').off('mouseup');
 
 
-                        $('.choosen').on('mousedown', function (e) {
-                            // $('path').off('click');
-                            if (choosenId < 0) {
-                                choosenId = $(this).data('id');
-                                $(`#${choosenId}`).attr("class", "choosen");
-                            } else {
-                                $(`#${choosenId}`).attr("class", "");
-                                choosenId = $(this).data('id');
-                                $(`#${choosenId}`).attr("class", "choosen");
 
-                                // let temp = document.getElementById(choosenId);
-                                // temp.className = "";
-                                // temp = document.getElementById(choosenId);
-                                console.log(choosenId);
-                                // temp.className = "choosen";
-                            }
-                            clickStatus = true;
+                        // $('.choosen').on('mousedown', function (e) {
+                        //     // $('path').off('click');
+                        // if (choosenId < 0) {
+                        //     choosenId = $(this).data('id');
+                        //     $(`#${choosenId}`).attr("class", "choosen");
+                        // } else {
+                        //     $(`#${choosenId}`).attr("class", "");
+                        //     choosenId = $(this).data('id');
+                        //     $(`#${choosenId}`).attr("class", "choosen");
 
-                        });
-                        $('.choosen').on('mousemove', function (e) {
-                            if(clickStatus){
-                                console.log("ff");
-                            }
-                            // $(this).attr('x',e.clientX);
-                            // $(this).attr('y',e.clientY);
-                        });
-                        $('.choosen').on('mouseup', function (e) {
-                            clickStatus = false;
-                        });
+                        //     // let temp = document.getElementById(choosenId);
+                        //     // temp.className = "";
+                        //     // temp = document.getElementById(choosenId);
+                        //     console.log(choosenId);
+                        //     // temp.className = "choosen";
+                        // }
+                        // clickStatus = true;
+
+                        // });
+                        // $('.choosen').on('mousemove', function (e) {
+                        //     if(clickStatus){
+                        //         console.log("ff");
+                        //     }
+                        //     // $(this).attr('x',e.clientX);
+                        //     // $(this).attr('y',e.clientY);
+                        // });
+                        // $('.choosen').on('mouseup', function (e) {
+                        //     clickStatus = false;
+                        // });
                         // $('path').on('click', function (e) {
-                           
+
                         // });
 
                         let dragable = false;
 
 
-                        // $('svg *').on('mousedown', function (e) {
+                        $('svg *').on('mousedown', function (e) {
+                            if (e.target.tagName == "path") {
+                                if (choosenId < 0) {
+                                    choosenId = $(this).data('id');
+                                    $(`#${choosenId}`).attr("class", "choosen");
+                                } else {
+                                    $(`#${choosenId}`).attr("class", "");
+                                    choosenId = $(this).data('id');
+                                    $(`#${choosenId}`).attr("class", "choosen");
+                                }
+                                let myPath = $(`#${choosenId}`).position();
+     
+                                if (e.target.classList.contains('choosen')) {
+                                    dragable = true;
+                                    console.log('down');
+                                    position = myPath;
+                                    
+                                    // if(p == "none"){
+                                    //     $(`#${choosenId}`).css('transform',"translate(100px,50px)")
 
-                        // });
+                                    // }else{
+                                    // $(`#${choosenId}`).css('transform',"translate(150px,50px)")
 
-                        // $('svg *').on('mousemove', function (e) {
+                                    // }
+                                    var p = $(`#${choosenId}`).css('transform');  
+                                    if(p=="none"){
+                                        
+                                    }
+                                    console.log(p);
 
-                        // });
+                                }
+                            }
+                        });
+
+                        $('svg *').on('mousemove', function (e) {
+                            if (dragable == true) {
+                                console.log("success");
+
+                            } else {
+                                console.log("fail");
+                            }
+                        });
+                        $('svg').on('mouseup', function (e) {
+                            dragable = false;
+                        });
+
+
                     }
                     else if (this.type == "pen") {
                         // Drawing =========================================================================================
@@ -200,29 +243,29 @@
             },
             created() {
                 // Realtime template demo
-                if (typeof (EventSource) !== "undefined") {
-                    var source = new EventSource("router.php", {
-                        withCredentials: true
-                    });
+                // if (typeof (EventSource) !== "undefined") {
+                //     var source = new EventSource("router.php", {
+                //         withCredentials: true
+                //     });
 
-                    source.addEventListener('message', event => {
-                        if (this.code != event.data) {
-                            this.code = event.data;
-                            line_id = $(event.data).children().last().attr('id') > line_id ? $(event.data).children().last().attr('id') : line_id;
-                            if (line_id != current_id) $('svg').html($(this.code).html());
-                        }
-                    }, false);
+                //     source.addEventListener('message', event => {
+                //         if (this.code != event.data) {
+                //             this.code = event.data;
+                //             line_id = $(event.data).children().last().attr('id') > current_id ? $(event.data).children().last().attr('id') : line_id;
+                //             if (line_id != current_id) $('svg').html($(this.code).html());
+                //         }
+                //     }, false);
 
-                    source.onerror = function (event) {
-                        if (event.readyState == EventSource.CLOSED) {
-                            console.log('Event was closed');
-                        } else {
-                            console.log("EventSource failed:", event);
-                        }
-                    }
-                } else {
-                    console.log("Sorry, your browser does not support server-sent events...");
-                }
+                //     source.onerror = function (event) {
+                //         if (event.readyState == EventSource.CLOSED) {
+                //             console.log('Event was closed');
+                //         } else {
+                //             console.log("EventSource failed:", event);
+                //         }
+                //     }
+                // } else {
+                //     console.log("Sorry, your browser does not support server-sent events...");
+                // }
             },
             mounted() {
                 this.menu();
