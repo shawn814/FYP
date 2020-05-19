@@ -94,6 +94,7 @@
                         let differentPosition = { x: 0, y: 0 };
                         let newX = 0;
                         let newY = 0;
+                        
                         // 
                         $('svg').off('mousedown');
                         $('svg').off('mousemove');
@@ -113,6 +114,11 @@
                                     $(`#${choosenId}`).attr("class", "choosen");
                                 }
                                 let myPath = $(`#${choosenId}`).position();
+
+                                document.addEventListener('keydown', function(e) {
+                                    if(e.keyCode == 8) 
+                                    alert('Code to delete in progress...');                              
+                                });
 
                                 if (e.target.classList.contains('choosen')) {
                                     dragable = true;
