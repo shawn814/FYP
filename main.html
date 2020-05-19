@@ -117,7 +117,7 @@
 
                                 document.addEventListener('keydown', function(e) {
                                     if(e.keyCode == 8) 
-                                    alert('Code to delete in progress...');                              
+                                    $(`#${choosenId}`).remove();
                                 });
 
                                 if (e.target.classList.contains('choosen')) {
