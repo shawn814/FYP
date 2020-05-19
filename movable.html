@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
 </head>
+<!-- http://www.petercollingridge.co.uk/tutorials/svg/interactive/dragging/ -->
 <style>
     .static {
         cursor: not-allowed;
@@ -17,26 +18,47 @@
 </style>
 
 <body>
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 30 20">
-        <rect x="0" y="0" width="30" height="20" fill="#fafafa" />
-        <rect x="4" y="5" width="8" height="10" fill="#007bff" />
-        <rect x="18" y="5" width="8" height="10" fill="#888" />
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 30 20" onload="makeDraggable(evt)">
+        <!-- <rect x="0" y="0" width="30" height="20" fill="#fafafa" />
+        <rect class="draggable" x="4" y="5" width="8" height="10" fill="#007bff" />
+        <rect class="static" x="18" y="5" width="8" height="10" fill="#888" /> -->
+        <path id="1" x="4"  class="draggable" data-id="1" d="M 594 180 L 592 179 L 588 177 L 583 176 L 576 176 L 564 178 L 554 183 L 544 194 L 539 204 L 536 219 L 536 231 L 541 244 L 555 255 L 598 260 L 619 260 L 632 255 L 642 247 L 648 236 L 649 228 L 642 194 L 639 191 L 636 188 L 623 181 L 613 178 L 584 174 L 578 174 L 573 174 L 566 174" stroke="black" stroke-width="3px" fill="none" stroke-linejoin="round" stroke-linecap="round"></path>
     </svg>
 
 </body>
 <script>
     function makeDraggable(evt) {
         var svg = evt.target;
+        var selectedElement, offset;
         svg.addEventListener('mousedown', startDrag);
         svg.addEventListener('mousemove', drag);
         svg.addEventListener('mouseup', endDrag);
         svg.addEventListener('mouseleave', endDrag);
         function startDrag(evt) {
-            
+            if (evt.target.classList.contains('draggable')) {
+                selectedElement = evt.target;
+                offset = getMousePosition(evt);
+                offset.x -= parseFloat(selectedElement.getAttributeNS(null, "x"));
+                offset.y -= parseFloat(selectedElement.getAttributeNS(null, "y"));
+            }
         }
         function drag(evt) {
+            if (selectedElement) {
+                evt.preventDefault();
+                var coord = getMousePosition(evt);
+                selectedElement.setAttributeNS(null, "x", coord.x - offset.x);
+                selectedElement.setAttributeNS(null, "y", coord.y - offset.y);
+            }
+        }
+        function getMousePosition(evt) {
+            var CTM = svg.getScreenCTM();
+            return {
+                x: (evt.clientX - CTM.e) / CTM.a,
+                y: (evt.clientY - CTM.f) / CTM.d
+            };
         }
         function endDrag(evt) {
+            selectedElement = null;
         }
     }
 </script>

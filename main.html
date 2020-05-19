@@ -1,207 +1,235 @@
 <!DOCTYPE html>
 <html lang="en">
-    <!-- Target
+<!-- Target
 1) Resize and movable
 2) Add Shape
 3) Add textbox-->
 
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Document</title>
-        <style>
-            body {
-                margin: 0;
-            }
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        body {
+            margin: 0;
+        }
 
-            svg {
-                border: 1px solid black;
-            }
+        svg {
+            border: 1px solid black;
+        }
 
-            #nav {
-                position: absolute;
-            }
+        #nav {
+            position: absolute;
+        }
 
-            #type label {
-                border: 1px solid black;
-                padding: 5px;
+        #type label {
+            border: 1px solid black;
+            padding: 5px;
 
-            }
+        }
 
-            .typeActive {
-                background-color: lightslategray;
-            }
+        .typeActive {
+            background-color: lightslategray;
+        }
 
-            path {
-                display: block;
-            }
+        path {
+            display: block;
+        }
 
-            path.choosen {
-                outline: 1px dashed blue;
-                cursor: move;
-            }
+        path.choosen {
+            outline: 1px dashed blue;
+            cursor: move;
+        }
 
-            [v-cloak] {
-                display: none;
-            }
+        [v-cloak] {
+            display: none;
+        }
 
-            /* path:hover {
+        /* path:hover {
             cursor: pointer;
         } */
-        </style>
-    </head>
+    </style>
+</head>
 
-    <body>
-        <div id="main" v-cloak>
-            <div id="nav">
-                <!-- Creating radio buttons -->
-                <div id="type">
-                    <label v-for="it in types" v-bind:class="{ typeActive: type==it }">
-                        <input type="radio" name="type" :value="it" v-model="type" v-on:change="menu">
-                        {{it.charAt(0).toUpperCase() + it.slice(1)}}
-                    </label>
-                </div>
+<body>
+    <div id="main" v-cloak>
+        <div id="nav">
+            <!-- Creating radio buttons -->
+            <div id="type">
+                <label v-for="it in types" v-bind:class="{ typeActive: type==it }">
+                    <input type="radio" name="type" :value="it" v-model="type" v-on:change="menu">
+                    {{it.charAt(0).toUpperCase() + it.slice(1)}}
+                </label>
+            </div>
 
-            </div>
-            <div id="content">
-                <svg id="draw" width="100%" height="100vh"></svg>
-            </div>
         </div>
+        <div id="content">
+            <svg id="draw" width="100%" height="100vh"></svg>
+        </div>
+    </div>
 
-        <script src="js/vue.js"></script>
-        <script src="js/jquery.min.js"></script>
-        <script>
-            let line_id = 0;
-            let choosenId = -1;
+    <script src="js/jquery.min.js"></script>
+    <script src="js/vue.js"></script>
 
-            var app3 = new Vue({
-                el: '#main',
-                data: {
-                    types: ["pen", "cursor", "resize", "shape"],
-                    type: "pen",
+    <script>
+        let line_id = 0;
+        let current_id = 0;
+        let choosenId = -1;
 
-                },
-                components: {
+        var app = new Vue({
+            el: '#main',
+            data: {
+                types: ["pen", "cursor", "resize", "shape"],
+                type: "pen",
+                code: ""
+            },
+            components: {
 
-                },
-                methods: {
-                    menu: function () {
-                        if (this.type == "cursor") {
-                            $('svg').off('mousedown');
-                            $('svg').off('mousemove');
-                            $('svg').off('mouseup');
-                            $('path').on('click', function (e) {
-                                if (choosenId < 0) {
-                                    choosenId = $(this).data('id');
-                                    $(`#${choosenId}`).attr("class", "choosen");
-                                } else {
-                                    $(`#${choosenId}`).attr("class", "");
-                                    choosenId = $(this).data('id');
-                                    $(`#${choosenId}`).attr("class", "choosen");
+            },
+            methods: {
+                menu: function () {
+                    if (this.type == "cursor") {
+                        let clickStatus = false;
+                        // 
+                        $('svg').off('mousedown');
+                        $('svg').off('mousemove');
+                        $('svg').off('mouseup');
 
-                                    // let temp = document.getElementById(choosenId);
-                                    // temp.className = "";
-                                    // temp = document.getElementById(choosenId);
-                                    console.log(choosenId);
-                                    // temp.className = "choosen";
-                                }
-                            });
 
-                            let dragable = false;
+                        $('.choosen').on('mousedown', function (e) {
+                            // $('path').off('click');
+                            if (choosenId < 0) {
+                                choosenId = $(this).data('id');
+                                $(`#${choosenId}`).attr("class", "choosen");
+                            } else {
+                                $(`#${choosenId}`).attr("class", "");
+                                choosenId = $(this).data('id');
+                                $(`#${choosenId}`).attr("class", "choosen");
 
-                            $('svg *').on('mousedown', function (e) {
+                                // let temp = document.getElementById(choosenId);
+                                // temp.className = "";
+                                // temp = document.getElementById(choosenId);
+                                console.log(choosenId);
+                                // temp.className = "choosen";
+                            }
+                            clickStatus = true;
 
-                            });
+                        });
+                        $('.choosen').on('mousemove', function (e) {
+                            if(clickStatus){
+                                console.log("ff");
+                            }
+                            // $(this).attr('x',e.clientX);
+                            // $(this).attr('y',e.clientY);
+                        });
+                        $('.choosen').on('mouseup', function (e) {
+                            clickStatus = false;
+                        });
+                        // $('path').on('click', function (e) {
+                           
+                        // });
 
-                            $('svg *').on('mousemove', function (e) {
+                        let dragable = false;
 
-                            });
-                        }
-                        else if (this.type == "pen") {
-                            // Drawing =========================================================================================
-                            let drawing = false;
-                            let startPosX = 0;
-                            let startPosY = 0;
 
-                            $('svg').on('mousedown', function (e) {
-                                startPosX = e.pageX;
-                                startPosY = e.pageY;
-                                drawing = true;
-                            });
+                        // $('svg *').on('mousedown', function (e) {
 
-                            $('svg').on('mousemove', function (e) {
-                                if (drawing) {
-                                    if ($(`#${line_id}`).length == "1") {
-                                        $(`#${line_id}`).attr("d", $(`#${line_id}`).attr("d") + ` L ${e.pageX} ${e.pageY}`);
-                                    }
-                                    else {
-                                        let newPath = document.createElementNS("http://www.w3.org/2000/svg", "path");
-                                        newPath.setAttribute('id', line_id);
-                                        newPath.setAttribute('data-id', line_id);
-                                        newPath.setAttribute('d', `M ${startPosX} ${startPosY} L ${e.pageX} ${e.pageY}`);
-                                        newPath.setAttribute('stroke', 'black');
-                                        newPath.setAttribute('stroke-width', '3px');
-                                        newPath.setAttribute('fill', 'none');
-                                        newPath.setAttribute('stroke-linejoin', 'round');
-                                        newPath.setAttribute('stroke-linecap', 'round');
+                        // });
 
-                                        $(this).append(newPath);
-                                    }
-                                }
-                            });
+                        // $('svg *').on('mousemove', function (e) {
 
-                            $('svg').on('mouseup', function (e) {
-                                if (drawing) line_id++;
-                                drawing = false;
-
-                            });
-
-                            $('svg').on('mouseleave', function (e) {
-                                if (drawing) line_id++;
-                                drawing = false;
-                            });
-                            $('path').off('click');
-                        }
-                        else {
-
-                        }
+                        // });
                     }
-                },
-                computed: {
+                    else if (this.type == "pen") {
+                        // Drawing =========================================================================================
+                        let drawing = false;
+                        let startPosX = 0;
+                        let startPosY = 0;
 
-                },
-                created() {
-                    // Realtime template demo
-                    if (typeof (EventSource) !== "undefined") {
-                        var source = new EventSource("router.php", {
-                            withCredentials: true
+                        $('svg').on('mousedown', function (e) {
+                            line_id++;
+                            startPosX = e.pageX;
+                            startPosY = e.pageY;
+                            drawing = true;
                         });
 
-                        source.addEventListener('message', event => {
-                            if (this.code != event.data) {
-                                this.code = event.data;
-                                this.genQR();
-                            }
-                        }, false);
+                        $('svg').on('mousemove', function (e) {
+                            if (drawing) {
+                                current_id = line_id;
+                                if ($(`#${current_id}`).length == "1") {
+                                    $(`#${current_id}`).attr("d", $(`#${current_id}`).attr("d") + ` L ${e.pageX} ${e.pageY}`);
+                                }
+                                else {
+                                    let newPath = document.createElementNS("http://www.w3.org/2000/svg", "path");
+                                    newPath.setAttribute('id', current_id);
+                                    newPath.setAttribute('data-id', current_id);
+                                    newPath.setAttribute('d', `M ${startPosX} ${startPosY} L ${e.pageX} ${e.pageY}`);
+                                    newPath.setAttribute('stroke', 'black');
+                                    newPath.setAttribute('stroke-width', '3px');
+                                    newPath.setAttribute('fill', 'none');
+                                    newPath.setAttribute('stroke-linejoin', 'round');
+                                    newPath.setAttribute('stroke-linecap', 'round');
 
-                        source.onerror = function (event) {
-                            if (event.readyState == EventSource.CLOSED) {
-                                console.log('Event was closed');
-                            } else {
-                                console.log("EventSource failed:", event);
+                                    $(this).append(newPath);
+                                }
+                                $.post('router.php', {
+                                    code: $('svg').parent().html()
+                                });
+                                this.code = $('svg').parent().html();
                             }
-                        }
-                    } else {
-                        console.log("Sorry, your browser does not support server-sent events...");
+                        });
+
+                        $('svg').on('mouseup', function (e) {
+                            drawing = false;
+                        });
+
+                        $('svg').on('mouseleave', function (e) {
+                            drawing = false;
+                        });
+
+                        $('path').off('click');
                     }
-                },
-                mounted() {
-                    this.menu();
+                    else {
 
-
+                    }
                 }
-            });
-        </script>
-    </body>
+            },
+
+            computed: {
+
+            },
+            created() {
+                // Realtime template demo
+                if (typeof (EventSource) !== "undefined") {
+                    var source = new EventSource("router.php", {
+                        withCredentials: true
+                    });
+
+                    source.addEventListener('message', event => {
+                        if (this.code != event.data) {
+                            this.code = event.data;
+                            line_id = $(event.data).children().last().attr('id') > line_id ? $(event.data).children().last().attr('id') : line_id;
+                            if (line_id != current_id) $('svg').html($(this.code).html());
+                        }
+                    }, false);
+
+                    source.onerror = function (event) {
+                        if (event.readyState == EventSource.CLOSED) {
+                            console.log('Event was closed');
+                        } else {
+                            console.log("EventSource failed:", event);
+                        }
+                    }
+                } else {
+                    console.log("Sorry, your browser does not support server-sent events...");
+                }
+            },
+            mounted() {
+                this.menu();
+
+            }
+        });
+    </script>
+</body>
 
 </html>

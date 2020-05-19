@@ -60,6 +60,7 @@
                     $(`#${line_id}`).attr("d", $(`#${line_id}`).attr("d") + ` C ${mx} ${my}, ${e.pageX} ${e.pageY}, ${(e.pageY - my) / 2} ${(e.pageX -mx)/2}`);
                 }
                 else {
+                    
                     let newPath = document.createElementNS("http://www.w3.org/2000/svg", "path");
                         newPath.setAttribute('id', line_id);
                         newPath.setAttribute('d', `M ${startPosX} ${StartPosY} L ${e.pageX} ${e.pageY}`);
