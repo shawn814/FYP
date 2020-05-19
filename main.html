@@ -202,21 +202,6 @@
                             let startPosY = 0;
 
                             $('svg').on('mousedown', function (e) {
-                                line_id++;
-                                startPosX = e.pageX;
-                                startPosY = e.pageY;
-                                drawing = true;
-                            });
-
-                            // });
-                        }
-                        else if (this.type == "pen") {
-                            // Drawing =========================================================================================
-                            let drawing = false;
-                            let startPosX = 0;
-                            let startPosY = 0;
-
-                            $('svg').on('mousedown', function (e) {
                                 line_id = uuidv4();
                                 startPosX = e.pageX;
                                 startPosY = e.pageY;
