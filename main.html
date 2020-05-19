@@ -90,8 +90,10 @@
                     menu: function () {
                         if (this.type == "cursor") {
                             let clickStatus = false;
-                            let position;
-                            let cursorPosition;
+                            let cursorPosition = { x: 0, y: 0 };
+                            let differentPosition = { x: 0, y: 0 };
+                            let newX = 0;
+                            let newY = 0;
                             // 
                             $('svg').off('mousedown');
                             $('svg').off('mousemove');
@@ -136,51 +138,60 @@
 
                             let dragable = false;
 
-                            $('svg *').on('mousedown', function (e) {
-                                if (e.target.tagName == "path") {
-                                    if (choosenId < 0) {
-                                        choosenId = $(this).data('id');
-                                        $(`#${choosenId}`).attr("class", "choosen");
-                                    } else {
-                                        $(`#${choosenId}`).attr("class", "");
-                                        choosenId = $(this).data('id');
-                                        $(`#${choosenId}`).attr("class", "choosen");
-                                    }
-                                    let myPath = $(`#${choosenId}`).position();
-
-                                    if (e.target.classList.contains('choosen')) {
-                                        dragable = true;
-                                        console.log('down');
-                                        position = myPath;
-
-                                        // if(p == "none"){
-                                        //     $(`#${choosenId}`).css('transform',"translate(100px,50px)")
-
-                                        // }else{
-                                        // $(`#${choosenId}`).css('transform',"translate(150px,50px)")
-
-                                        // }
-                                        var p = $(`#${choosenId}`).css('transform');
-                                        if (p == "none") {
-
-                                        }
-                                        console.log(p);
-
-                                    }
-                                }
-                            });
-
-                            $('svg *').on('mousemove', function (e) {
-                                if (dragable == true) {
-                                    console.log("success");
-
+                             $('svg *').on('mousedown', function (e) {
+                            if (e.target.tagName == "path") {
+                                if (choosenId < 0) {
+                                    choosenId = $(this).data('id');
+                                    $(`#${choosenId}`).attr("class", "choosen");
                                 } else {
-                                    console.log("fail");
+                                    $(`#${choosenId}`).attr("class", "");
+                                    choosenId = $(this).data('id');
+                                    $(`#${choosenId}`).attr("class", "choosen");
                                 }
-                            });
-                            $('svg').on('mouseup', function (e) {
-                                dragable = false;
-                            });
+                                let myPath = $(`#${choosenId}`).position();
+
+                                if (e.target.classList.contains('choosen')) {
+                                    dragable = true;
+                                    console.log('down');
+                                    position = myPath;
+
+
+                                    var p = $(`#${choosenId}`).css('transform');
+                                    console.log(p);
+                                    if (p != "none") {
+                                        let temp = p.split(',');
+                                        position.x = parseInt(temp[4]);
+                                        position.y = parseInt(temp[5]);
+                                        console.log(position.x+"|" +position.y);
+
+                                    } else {
+                                        position.x = 0;
+                                        position.y = 0;
+                                        console.log("p");
+                                    }
+                                    cursorPosition.x = e.clientX;
+                                    cursorPosition.y = e.clientY;
+                                    console.log(cursorPosition);
+
+                                }
+                            }
+                        });
+
+                        $('svg').on('mousemove', function (e) {
+                            if (dragable == true) {
+                                console.log('success');
+                                differentPosition.x = e.clientX - cursorPosition.x;
+                                differentPosition.y = e.clientY - cursorPosition.y;
+                                newX = position.x + differentPosition.x;
+                                newY = position.y + differentPosition.y;
+                                $(`#${choosenId}`).css('transform', `translate(${newX}px,${newY}px)`);
+                            } else {
+                                console.log("fail");
+                            }
+                        });
+                        $('svg').on('mouseup', function (e) {
+                            dragable = false;
+                        });
 
 
                         }
