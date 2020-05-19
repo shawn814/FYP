@@ -1,144 +1,108 @@
 <!DOCTYPE html>
 <html lang="en">
-    <!-- Target
+<!-- Target
 1) Resize and movable
 2) Add Shape
 3) Add textbox-->
 
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Document</title>
-        <style>
-            body {
-                margin: 0;
-            }
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        body {
+            margin: 0;
+        }
 
-            svg {
-                border: 1px solid black;
-            }
+        svg {
+            border: 1px solid black;
+        }
 
-            #nav {
-                position: absolute;
-            }
+        #nav {
+            position: absolute;
+        }
 
-            #type label {
-                border: 1px solid black;
-                padding: 5px;
+        #type label {
+            border: 1px solid black;
+            padding: 5px;
 
-            }
+        }
 
-            .typeActive {
-                background-color: lightslategray;
-            }
+        .typeActive {
+            background-color: lightslategray;
+        }
 
-            path {
-                display: block;
-            }
+        path {
+            display: block;
+        }
 
-            path.choosen {
-                outline: 1px dashed blue;
-                cursor: move;
-            }
+        path.choosen {
+            outline: 1px dashed blue;
+            cursor: move;
+        }
 
-            [v-cloak] {
-                display: none;
-            }
+        [v-cloak] {
+            display: none;
+        }
 
-            /* path:hover {
+        /* path:hover {
             cursor: pointer;
         } */
-        </style>
-    </head>
+    </style>
+</head>
 
-    <body>
-        <div id="main" v-cloak>
-            <div id="nav">
-                <!-- Creating radio buttons -->
-                <div id="type">
-                    <label v-for="it in types" v-bind:class="{ typeActive: type==it }">
-                        <input type="radio" name="type" :value="it" v-model="type" v-on:change="menu">
-                        {{it.charAt(0).toUpperCase() + it.slice(1)}}
-                    </label>
-                </div>
+<body>
+    <div id="main" v-cloak>
+        <div id="nav">
+            <!-- Creating radio buttons -->
+            <div id="type">
+                <label v-for="it in types" v-bind:class="{ typeActive: type==it }">
+                    <input type="radio" name="type" :value="it" v-model="type" v-on:change="menu">
+                    {{it.charAt(0).toUpperCase() + it.slice(1)}}
+                </label>
+            </div>
 
-            </div>
-            <div id="content">
-                <svg id="draw" width="100%" height="100vh"></svg>
-            </div>
         </div>
+        <div id="content">
+            <svg id="draw" width="100%" height="100vh"></svg>
+        </div>
+    </div>
 
-        <script src="js/jquery.min.js"></script>
-        <script src="js/vue.js"></script>
+    <script src="js/jquery.min.js"></script>
+    <script src="js/vue.js"></script>
 
-        <script>
-            let line_id = 0;
-            let current_id = 0;
-            let choosenId = -1;
+    <script>
+        let line_id = 0;
+        let current_id = 0;
+        let choosenId = -1;
 
-            var app = new Vue({
-                el: '#main',
-                data: {
-                    types: ["pen", "cursor", "resize", "shape"],
-                    type: "pen",
-                    code: ""
-                },
-                components: {
+        var app = new Vue({
+            el: '#main',
+            data: {
+                types: ["pen", "cursor", "resize", "shape"],
+                type: "pen",
+                code: ""
+            },
+            components: {
 
-                },
-                methods: {
-                    menu: function () {
-                        if (this.type == "cursor") {
-                            let clickStatus = false;
-                            let cursorPosition = { x: 0, y: 0 };
-                            let differentPosition = { x: 0, y: 0 };
-                            let newX = 0;
-                            let newY = 0;
-                            // 
-                            $('svg').off('mousedown');
-                            $('svg').off('mousemove');
-                            $('svg').off('mouseup');
+            },
+            methods: {
+                menu: function () {
+                    if (this.type == "cursor") {
+                        let clickStatus = false;
+                        let cursorPosition = { x: 0, y: 0 };
+                        let differentPosition = { x: 0, y: 0 };
+                        let newX = 0;
+                        let newY = 0;
+                        // 
+                        $('svg').off('mousedown');
+                        $('svg').off('mousemove');
+                        $('svg').off('mouseup');
 
 
+                        let dragable = false;
 
-                            // $('.choosen').on('mousedown', function (e) {
-                            //     // $('path').off('click');
-                            // if (choosenId < 0) {
-                            //     choosenId = $(this).data('id');
-                            //     $(`#${choosenId}`).attr("class", "choosen");
-                            // } else {
-                            //     $(`#${choosenId}`).attr("class", "");
-                            //     choosenId = $(this).data('id');
-                            //     $(`#${choosenId}`).attr("class", "choosen");
-
-                            //     // let temp = document.getElementById(choosenId);
-                            //     // temp.className = "";
-                            //     // temp = document.getElementById(choosenId);
-                            //     console.log(choosenId);
-                            //     // temp.className = "choosen";
-                            // }
-                            // clickStatus = true;
-
-                            // });
-                            // $('.choosen').on('mousemove', function (e) {
-                            //     if(clickStatus){
-                            //         console.log("ff");
-                            //     }
-                            //     // $(this).attr('x',e.clientX);
-                            //     // $(this).attr('y',e.clientY);
-                            // });
-                            // $('.choosen').on('mouseup', function (e) {
-                            //     clickStatus = false;
-                            // });
-                            // $('path').on('click', function (e) {
-
-                            // });
-
-                            // });
-
-                            let dragable = false;
-
-                             $('svg *').on('mousedown', function (e) {
+                        $('path').on('mousedown', function (e) {
                             if (e.target.tagName == "path") {
                                 if (choosenId < 0) {
                                     choosenId = $(this).data('id');
@@ -162,7 +126,7 @@
                                         let temp = p.split(',');
                                         position.x = parseInt(temp[4]);
                                         position.y = parseInt(temp[5]);
-                                        console.log(position.x+"|" +position.y);
+                                        console.log(position.x + "|" + position.y);
 
                                     } else {
                                         position.x = 0;
@@ -192,101 +156,107 @@
                         $('svg').on('mouseup', function (e) {
                             dragable = false;
                         });
+                        
 
 
-                        }
-                        else if (this.type == "pen") {
-                            // Drawing =========================================================================================
-                            let drawing = false;
-                            let startPosX = 0;
-                            let startPosY = 0;
-
-                            $('svg').on('mousedown', function (e) {
-                                line_id = uuidv4();
-                                startPosX = e.pageX;
-                                startPosY = e.pageY;
-                                drawing = true;
-                            });
-
-                            $('svg').on('mousemove', function (e) {
-                                if (drawing) {
-                                    if ($(`#${line_id}`).length == "1") {
-                                        $(`#${line_id}`).attr("d", $(`#${line_id}`).attr("d") + ` L ${e.pageX} ${e.pageY}`);
-                                    }
-                                    else {
-                                        let newPath = document.createElementNS("http://www.w3.org/2000/svg", "path");
-                                        newPath.setAttribute('id', line_id);
-                                        newPath.setAttribute('data-id', line_id);
-                                        newPath.setAttribute('d', `M ${startPosX} ${startPosY} L ${e.pageX} ${e.pageY}`);
-                                        newPath.setAttribute('stroke', 'black');
-                                        newPath.setAttribute('stroke-width', '3px');
-                                        newPath.setAttribute('fill', 'none');
-                                        newPath.setAttribute('stroke-linejoin', 'round');
-                                        newPath.setAttribute('stroke-linecap', 'round');
-
-                                        $(this).append(newPath);
-                                    }
-                                    $.post('router.php', {
-                                        code: $('svg').parent().html()
-                                    });
-                                }
-                            });
-
-                            $('svg').on('mouseup', function (e) {
-                                drawing = false;
-                            });
-
-                            $('svg').on('mouseleave', function (e) {
-                                drawing = false;
-                            });
-
-                            $('path').off('click');
-                        }
-                        else {
-
-                        }
                     }
-                },
+                    else if (this.type == "pen") {
+                        // Drawing =========================================================================================
+                        let drawing = false;
+                        let startPosX = 0;
+                        let startPosY = 0;
 
-                computed: {
+                        $('path').off('mousedown');
+                        $('svg').off('mousemove');
+                        $('svg').off('mouseup');
+                        $(`#${choosenId}`).attr("class", "");
 
-                },
-                created() {
-                    // Realtime template demo
-                    // if (typeof (EventSource) !== "undefined") {
-                    //     var source = new EventSource("router.php", {
-                    //         withCredentials: true
-                    //     });
+                        $('svg').on('mousedown', function (e) {
+                            line_id = uuidv4();
+                            startPosX = e.pageX;
+                            startPosY = e.pageY;
+                            drawing = true;
+                        });
 
-                    //     source.addEventListener('message', event => {
-                    //         if (this.code != event.data) {
-                    //             this.code = event.data;
-                    //             line_id = $(event.data).children().last().attr('id') > current_id ? $(event.data).children().last().attr('id') : line_id;
-                    //             if (line_id != current_id) $('svg').html($(this.code).html());
-                    //         }
-                    //     }, false);
+                        $('svg').on('mousemove', function (e) {
+                            if (drawing) {
+                                if ($(`#${line_id}`).length == "1") {
+                                    $(`#${line_id}`).attr("d", $(`#${line_id}`).attr("d") + ` L ${e.pageX} ${e.pageY}`);
+                                }
+                                else {
+                                    let newPath = document.createElementNS("http://www.w3.org/2000/svg", "path");
+                                    newPath.setAttribute('id', line_id);
+                                    newPath.setAttribute('data-id', line_id);
+                                    newPath.setAttribute('d', `M ${startPosX} ${startPosY} L ${e.pageX} ${e.pageY}`);
+                                    newPath.setAttribute('stroke', 'black');
+                                    newPath.setAttribute('stroke-width', '3px');
+                                    newPath.setAttribute('fill', 'none');
+                                    newPath.setAttribute('stroke-linejoin', 'round');
+                                    newPath.setAttribute('stroke-linecap', 'round');
 
-                    //     source.onerror = function (event) {
-                    //         if (event.readyState == EventSource.CLOSED) {
-                    //             console.log('Event was closed');
-                    //         } else {
-                    //             console.log("EventSource failed:", event);
-                    //         }
-                    //     }
-                    // } else {
-                    //     console.log("Sorry, your browser does not support server-sent events...");
-                    // }
-                },
-                mounted() {
-                    this.menu();
+                                    $(this).append(newPath);
+                                }
+                                $.post('router.php', {
+                                    code: $('svg').parent().html()
+                                });
+                            }
+                        });
+
+                        $('svg').on('mouseup', function (e) {
+                            drawing = false;
+                        });
+
+                        $('svg').on('mouseleave', function (e) {
+                            drawing = false;
+                        });
+
+                        
+                    }
+                    else {
+
+                    }
                 }
-            });
-            function uuidv4() {
-                return ([1e7] + -1e3 + -4e3 + -8e3 + -1e11).replace(/[018]/g, c =>
-                    (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)
-                );
+            },
+
+            computed: {
+
+            },
+            created() {
+                // Realtime template demo
+                // if (typeof (EventSource) !== "undefined") {
+                //     var source = new EventSource("router.php", {
+                //         withCredentials: true
+                //     });
+
+                //     source.addEventListener('message', event => {
+                //         if (this.code != event.data) {
+                //             this.code = event.data;
+                //             line_id = $(event.data).children().last().attr('id') > current_id ? $(event.data).children().last().attr('id') : line_id;
+                //             if (line_id != current_id) $('svg').html($(this.code).html());
+                //         }
+                //     }, false);
+
+                //     source.onerror = function (event) {
+                //         if (event.readyState == EventSource.CLOSED) {
+                //             console.log('Event was closed');
+                //         } else {
+                //             console.log("EventSource failed:", event);
+                //         }
+                //     }
+                // } else {
+                //     console.log("Sorry, your browser does not support server-sent events...");
+                // }
+            },
+            mounted() {
+                this.menu();
             }
-        </script>
-    </body>
+        });
+        function uuidv4() {
+            return ([1e7] + -1e3 + -4e3 + -8e3 + -1e11).replace(/[018]/g, c =>
+                (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)
+            );
+        }
+    </script>
+</body>
 
 </html>
