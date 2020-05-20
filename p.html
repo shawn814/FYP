@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        body {
+            margin: 100px;
+        }
+
+        .box {
+            outline: 1px solid black;
+            color: black;
+        }
+
+        foreignObject div, foreignObject div textarea {
+            width: 100%;
+            height: 100%;
+        }
+        textarea{
+            resize:none;
+        }
+    </style>
+</head>
+
+<body>
+    <svg height="100vh" width="100%">
+        <!-- <text id="box" x="0" y="15" fill="red">I love SVG!</text> -->
+        <!-- <g>
+            <text id="box"  x="0" y="15" contentEditable="true">foo</text>
+        </g> -->
+        <!-- <foreignObject class="box" x="10" y="10" width="500" height="300">
+            <div xmlns="http://www.w3.org/1999/xhtml">
+                <textarea></textarea>
+            </div>
+        </foreignObject> -->
+    </svg>
+    <!-- <svg width="100" height="100">
+        <g transform="translate(40,40)">
+            <text contentEditable="true">foo</text>
+        </g>
+    </svg> -->
+</body>
+<script src="js/jquery.min.js"></script>
+<script>
+    let cursorPosition = { x: 0, y: 0 };
+    let differentPosition = { x: 0, y: 0 };
+    let position = { x: 0, y: 0 };
+    // let coo = $('text').position();
+    // console.log(coo);
+    $("svg").on('mousedown', function (e) {
+        cursorPosition.x = e.clientX;
+        cursorPosition.y = e.clientY;
+    });
+    $("svg").on('mousemove', function (e) {
+        
+        // let newText = $("svg").append(`<foreignObject id="" x="${cursorPosition.x}" y="${cursorPosition.y}" width="1px" height="1px">
+        //     <div xmlns="http://www.w3.org/1999/xhtml">
+        //     <input></input>
+        //         </div>
+        //     </foreignObject>`);
+    });
+    $("svg").on('mouseup', function (e) {
+
+    });</script>
+
+</html>
