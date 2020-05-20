@@ -100,19 +100,15 @@
                         $('svg').off('mousemove');
                         $('svg').off('mouseup');
 
-
                         let dragable = false;
 
                         $('svg *').on('mousedown', function (e) {
                             if (e.target.tagName == "path") {
-                                if (choosenId < 0) {
-                                    choosenId = $(this).data('id');
-                                    $(`#${choosenId}`).attr("class", "choosen");
-                                } else {
+                                if (choosenId!=-1) {
                                     $(`#${choosenId}`).attr("class", "");
-                                    choosenId = $(this).data('id');
-                                    $(`#${choosenId}`).attr("class", "choosen");
                                 }
+                                choosenId = $(this).data('id');
+                                $(`#${choosenId}`).attr("class", "choosen");
                                 let myPath = $(`#${choosenId}`).position();
 
                                 document.addEventListener('keydown', function(e) {
@@ -137,13 +133,16 @@
                                     } else {
                                         position.x = 0;
                                         position.y = 0;
-                                        console.log("p");
                                     }
                                     cursorPosition.x = e.clientX;
                                     cursorPosition.y = e.clientY;
                                     console.log(cursorPosition);
 
                                 }
+                            }
+                            else{
+                                console.log('haha');
+                                $(`#${choosenId}`).attr("class", "");
                             }
                         });
 
