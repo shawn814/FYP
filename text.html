@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Text</title>
+
+        <style>
+            canvas {
+                border: 1px solid black;
+                width: 560px;
+                height: 360px;
+            }
+
+            body {
+                margin: 0;
+                padding: 0;
+            }
+
+            .box {
+                outline: 1px solid black;
+                color: black;
+            }
+
+            textarea {
+            font-size: 12pt;
+            resize: none;
+            overflow:hidden;
+            /* position:absolute;
+            top:0;
+            left: 50px;
+            width: 100px;
+            height:100px; */
+        }
+
+        </style>
+    </head>
+
+    <body>
+        <div id="app">            
+            <!-- <svg id="try" width="100%" height="100vh"><text x="100" y="100" fill="black">{{content}}</text></svg>
+            <input type="text" v-model="a"> -->
+        </div>
+
+        <script src="js/jquery.min.js"></script>
+        <script src="js/vue.js"></script>
+        <script>
+            let objectId = 0;
+            let cursorPosition = { x: 0, y: 0 };
+            let differentPosition = { x: 0, y: 0 };
+            let position = { x: 0, y: 0 };
+            let dragAction = false;
+        
+            $("#app").on('click', function (e) {
+                cursorPosition.x = e.clientX;
+                cursorPosition.y = e.clientY;
+                let tryText = document.createElement('textarea');
+                
+            });
+
+            $("svg").on('mousedown', function (e) {
+                objectId++;
+                cursorPosition.x = e.clientX;
+                cursorPosition.y = e.clientY;
+                dragAction = true;
+                console.log(cursorPosition);
+
+            });
+            // $("svg").on('mousemove', function (e) {
+            //     if (dragAction) {
+            //         differentPosition.x = e.clientX - cursorPosition.x;
+            //         differentPosition.y = e.clientY - cursorPosition.y;
+
+            //         if (differentPosition.x > 0 && differentPosition.y > 0) {
+            //             if ($(`#${objectId}`).length == "1") { //If the element is exist
+            //                 $(`#${objectId}`).attr("width", `${differentPosition.x}`);
+            //                 $(`#${objectId}`).attr("height", `${differentPosition.y}`);
+
+            //             }
+            //             // text.setAttribute('x', '10');
+            //             // text.setAttribute('y', '20');
+            //             // text.textContent = '12345';
+
+            //             // svg.appendChild(rect);
+            //             // svg.appendChild(text);
+
+            //             // var wp = document.getElementById('wrapper');
+            //             // wp.appendChild(svg);
+
+            //             // let text = document.getElementById("text");
+            //             // text.textContent = Vue.content;
+            //             else{
+            //                 let newText = document.createElementNS("http://www.w3.org/2000/svg", "text");
+            //                 newText.setAttribute('id', objectId);
+            //                 newText.setAttribute('x', cursorPosition.x);
+            //                 newText.setAttribute('y', cursorPosition.y);
+            //                 newText.setAttribute('width', differentPosition.y);
+            //                 newText.setAttribute('height', differentPosition.y);
+            //                 newText.setAttribute('class', "box")
+            //                 $(this).appendChild(newText);
+            //             }
+
+            //         }
+            //     }
+            // });
+
+         
+            let app = new Vue({
+                el: "#app",
+                data: {
+                    a: "hello"
+                }
+
+            });
+        </script>
+    </body>
+
+</html>

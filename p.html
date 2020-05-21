@@ -17,7 +17,8 @@
         }
 
         foreignObject div,
-        foreignObject div textarea, foreignObject div input  {
+        foreignObject div textarea,
+        foreignObject div input {
             width: 100%;
             height: 100%;
         }
@@ -25,7 +26,7 @@
         textarea {
             font-size: 12pt;
             resize: none;
-            overflow:hidden;
+            overflow: hidden;
             /* position:absolute;
             top:0;
             left: 50px;
@@ -61,57 +62,1791 @@
     let differentPosition = { x: 0, y: 0 };
     let position = { x: 0, y: 0 };
     let dragAction = false;
+    let status = false;
     // let coo = $('text').position();
     // console.log(coo);
-    $("svg").on('mousedown', function (e) {
-        objectId++;
-        cursorPosition.x = e.clientX;
-        cursorPosition.y = e.clientY;
-        dragAction = true;
-        console.log(cursorPosition);
+    if (status) {
 
-    });
-    $("svg").on('mousemove', function (e) {
-        if (dragAction) {
-            differentPosition.x = e.clientX - cursorPosition.x;
-            differentPosition.y = e.clientY - cursorPosition.y;
 
-            if (differentPosition.x > 0 && differentPosition.y > 0) {
-                if ($(`#${objectId}`).length == "1") {  //If the element is exist
-                    $(`#${objectId}`).attr("width", `${differentPosition.x}`);
-                    $(`#${objectId}`).attr("height", `${differentPosition.y}`);
+        $("svg").on('mousedown', function (e) {
+            objectId++;
+            cursorPosition.x = e.clientX;
+            cursorPosition.y = e.clientY;
+            dragAction = true;
+            console.log(cursorPosition);
 
-                } else { 
-                    // let newText = $(document.createElementNS('http://www.w3.org/2000/svg', 'foreignObject'));
-                    // let newText = $("svg").append(`
-                    // <foreignObject id="${objectId}" x="${cursorPosition.x}" y="${cursorPosition.y}" width="${differentPosition.x}" height="${differentPosition.y}">
-                    //     <div xmlns="http://www.w3.org/1999/xhtml">
-                    //         <textarea>assd</textarea>
-                    //     </div>
-                    // </foreignObject>`);
-                    let newText = document.createElementNS("http://www.w3.org/2000/svg", "foreignObject");
-                    newText.setAttribute('id', objectId);
-                    newText.setAttribute('x', cursorPosition.x);
-                    newText.setAttribute('y', cursorPosition.y);
-                    newText.setAttribute('width', differentPosition.y);
-                    newText.setAttribute('height', differentPosition.y);
-                    newText.setAttribute('class', "box")
-                    $(this).append(newText);
-                    $(`#${objectId}`).append(`
+        });
+
+        $("svg").on('mousemove', function (e) {
+            if (dragAction) {
+                differentPosition.x = e.clientX - cursorPosition.x;
+                differentPosition.y = e.clientY - cursorPosition.y;
+
+                if (differentPosition.x > 0 && differentPosition.y > 0) {
+                    if ($(`#${objectId}`).length == "1") {  //If the element is exist
+                        $(`#${objectId}`).attr("width", `${differentPosition.x}`);
+                        $(`#${objectId}`).attr("height", `${differentPosition.y}`);
+
+                    } else {
+                        // let newText = $(document.createElementNS('http://www.w3.org/2000/svg', 'foreignObject'));
+                        // let newText = $("svg").append(`
+                        // <foreignObject id="${objectId}" x="${cursorPosition.x}" y="${cursorPosition.y}" width="${differentPosition.x}" height="${differentPosition.y}">
+                        //     <div xmlns="http://www.w3.org/1999/xhtml">
+                        //         <textarea>assd</textarea>
+                        //     </div>
+                        // </foreignObject>`);
+                        let newText = document.createElementNS("http://www.w3.org/2000/svg", "foreignObject");
+                        newText.setAttribute('id', objectId);
+                        newText.setAttribute('x', cursorPosition.x);
+                        newText.setAttribute('y', cursorPosition.y);
+                        newText.setAttribute('width', differentPosition.y);
+                        newText.setAttribute('height', differentPosition.y);
+                        newText.setAttribute('class', "box")
+                        $(this).append(newText);
+                        $(`#${objectId}`).append(`
                 <div xmlns="http://www.w3.org/1999/xhtml">
                     <textarea></textarea>
                 </div>`);
-                    let p = document.getElementById(objectId).getBoundingClientRect();
+                        let p = document.getElementById(objectId).getBoundingClientRect();
+                    }
                 }
-            }
-            else {
-                // remove the element????
-            }
+                else {
+                    // remove the element????
+                }
 
-        }
-    });
-    $("svg").on('mouseup', function (e) {
-        dragAction = false;
-    });</script>
+            }
+        });
+        $("svg").on('mouseup', function (e) {
+            dragAction = false;
+        });
+    }else{
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
+        
+    }
+</script>
 
 </html>
