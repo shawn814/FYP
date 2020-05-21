@@ -39,13 +39,16 @@
 
     <body>
         <div id="app">            
-            <!-- <svg id="try" width="100%" height="100vh"><text x="100" y="100" fill="black">{{content}}</text></svg>
-            <input type="text" v-model="a"> -->
+            <svg id="try" width="100%" height="100vh"><text style="white-space: pre-line;" x="100" y="100" fill="black">{{a}}</text></svg>
+
+            <textarea v-model="a"></textarea>
         </div>
 
         <script src="js/jquery.min.js"></script>
         <script src="js/vue.js"></script>
         <script>
+
+
             let objectId = 0;
             let cursorPosition = { x: 0, y: 0 };
             let differentPosition = { x: 0, y: 0 };
