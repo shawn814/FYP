@@ -96,6 +96,10 @@
 
         svg {
             background-color: white;
+            height: 744px;
+            width: 1052px;
+            transform: scale(0.9);
+            touch-action: none;
         }
     </style>
 </head>
@@ -113,7 +117,7 @@
 
         </div>
         <div id="content">
-            <svg id="draw" width="1052" height="744" viewBox="0 0 1052 744">
+            <svg id="draw" viewBox="0 0 1052 744">
                 <g id="resize_wrap">
                     <rect id="resize_border" fill="none" stroke="lightblue" stroke-width="1px" />
                     <rect id="resize_nw" width="10" height="10" />
@@ -352,6 +356,8 @@
                             line_id = uuidv4();
                             startPosX = e.offsetX;
                             startPosY = e.offsetY;
+                            console.log(e.offsetX);
+                            console.log(e)
                             drawing = true;
                         });
 
