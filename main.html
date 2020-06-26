@@ -183,6 +183,7 @@
                         });
 
                         $('svg *').on('pointerdown', function (e) {
+                            let loc = cursorPoint(e);
                             if (e.target.tagName == "path") {
                                 if (choosenId != -1) $(`#${choosenId}`).removeClass("choosen");
 
@@ -193,7 +194,6 @@
                                     if (!resizable) dragable = true;
 
                                     $('#resize_wrap').show();
-                                    // selected_info = $(this)[0].getBBox();
                                     selected_info = $(".choosen")[0].getBBox();
 
                                     $("#resize_border").attr("x", selected_info.x - 5).attr("y", selected_info.y - 5).attr("width", selected_info.width + 10).attr("height", selected_info.height + 10);
@@ -220,15 +220,16 @@
                                         position = { x: 0, y: 0 };
                                     }
 
-                                    cursorPosition.x = e.offsetX;
-                                    cursorPosition.y = e.offsetY;
+                                    cursorPosition.x = loc.x;
+                                    cursorPosition.y = loc.y;
                                 }
                             }
                         });
 
                         $('svg').on('pointermove', function (e) {
+                            let loc = cursorPoint(e);
                             if (dragable) {
-                                differentPosition = { x: e.offsetX - cursorPosition.x, y: e.offsetY - cursorPosition.y };
+                                differentPosition = { x: loc.x - cursorPosition.x, y: loc.y - cursorPosition.y };
                                 current_position = { x: position.x + differentPosition.x, y: position.y + differentPosition.y };
 
                                 $(`#${choosenId}`).css('transform', `translate(${current_position.x}px,${current_position.y}px)`);
@@ -239,7 +240,7 @@
                             else if (resizable) {
                                 let new_selected_info = $(".choosen")[0].getBBox();
 
-                                differentPosition.x = e.offsetX - (selected_info.x + selected_info.width);
+                                differentPosition.x = loc.x - (selected_info.x + selected_info.width);
                                 current_scale.x = (differentPosition.x + selected_info.width) / selected_info.width;
 
                                 $("#resize_border").attr("x", new_selected_info.x - 5).attr("y", new_selected_info.y - 5).attr("width", new_selected_info.width + 10).attr("height", new_selected_info.height + 10);
@@ -300,10 +301,10 @@
                         });
 
                         $("#resize_e").on('pointerdown', function (e) {
-                            cursorPosition.x = e.clientX;
-                            cursorPosition.y = e.clientY;
-                            resizable = true;
-                            dragable = false;
+                            // cursorPosition.x = e.clientX;
+                            // cursorPosition.y = e.clientY;
+                            // resizable = true;
+                            // dragable = false;
                         });
 
                         $("#resize_se").on('pointerdown', function (e) {
@@ -327,16 +328,11 @@
                             if (e.target.tagName != "path" && !dragable && !resizable) {
                                 if (choosenId != -1) {
                                     $(`#${choosenId}`).removeClass("choosen");
-                                    $("#resize_wrap").hide();
+                                    $("#resize_wrap").removeAttr('style').hide();
                                     choosenId = -1;
                                 }
                             }
                         });
-
-                        // $(document).on('mouseup', function (e) {
-                        //     resizable = false;
-                        //     dragable = false;
-                        // });
                     }
                     else if (this.type == "pen") {
                         // Drawing =========================================================================================
@@ -378,9 +374,6 @@
 
                                     $(this).append(newPath);
                                 }
-                                // $.post('router.php', {
-                                //     code: $('svg').parent().html()
-                                // });
                             }
                         });
 
@@ -407,8 +400,6 @@
             
                             let newText = document.createElementNS("http://www.w3.org/2000/svg", "text");
                             newText.setAttribute()
-            
-                            //"Enter key" = 13
                         })*/
                     }
                     else {
@@ -422,30 +413,6 @@
             },
             created() {
                 $("#resize_wrap").hide();
-                // Realtime template demo
-                // if (typeof (EventSource) !== "undefined") {
-                //     var source = new EventSource("router.php", {
-                //         withCredentials: true
-                //     });
-
-                //     source.addEventListener('message', event => {
-                //         if (this.code != event.data) {
-                //             this.code = event.data;
-                //             line_id = $(event.data).children().last().attr('id') > current_id ? $(event.data).children().last().attr('id') : line_id;
-                //             if (line_id != current_id) $('svg').html($(this.code).html());
-                //         }
-                //     }, false);
-
-                //     source.onerror = function (event) {
-                //         if (event.readyState == EventSource.CLOSED) {
-                //             console.log('Event was closed');
-                //         } else {
-                //             console.log("EventSource failed:", event);
-                //         }
-                //     }
-                // } else {
-                //     console.log("Sorry, your browser does not support server-sent events...");
-                // }
             },
             mounted() {
                 this.menu();
