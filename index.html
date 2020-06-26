@@ -36,13 +36,13 @@
             let startPosX = startPosY = 0;
             let line_id = 0;
 
-            $('svg').on('mousedown', function (e) {
+            $('svg').on('pointerdown', function (e) {
                 startPosX = e.pageX;
                 StartPosY = e.pageY;
                 drawing = true;
             });
 
-            $('svg').on('mousemove', function (e) {
+            $('svg').on('pointermove', function (e) {
                 if (drawing) {
                     if ($(`#${line_id}`).length == "1") {
                         $(`#${line_id}`).attr("d", $(`#${line_id}`).attr("d") + ` L ${e.pageX} ${e.pageY}`);
@@ -59,7 +59,7 @@
                 }
             });
 
-            $('svg').on('mouseup', function (e) {
+            $('svg').on('pointerup', function (e) {
                 drawing = false;
                 line_id++;
             });
