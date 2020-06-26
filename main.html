@@ -98,7 +98,6 @@
             background-color: white;
             height: 744px;
             width: 1052px;
-            transform: scale(0.9);
             touch-action: none;
         }
     </style>
@@ -114,8 +113,8 @@
                     {{it.charAt(0).toUpperCase() + it.slice(1)}}
                 </label>
             </div>
-
         </div>
+        
         <div id="content">
             <svg id="draw" viewBox="0 0 1052 744">
                 <g id="resize_wrap">
@@ -272,7 +271,7 @@
                                     for (let i of coordinate) {
                                         let temp2 = i.split(",");
                                         if ($.isNumeric(temp2[0]) && $.isNumeric(temp2[1])) {
-                                            !new_css_value ? 
+                                            !new_css_value ?
                                                 new_css_value = "M" + (parseFloat(temp2[0]) + position.x) + "," + (parseFloat(temp2[1]) + position.y) :
                                                 new_css_value += "L" + (parseFloat(temp2[0]) + position.x) + "," + (parseFloat(temp2[1]) + position.y);
                                         }
@@ -354,23 +353,23 @@
 
                         $('svg').on('pointerdown', function (e) {
                             line_id = uuidv4();
-                            startPosX = e.offsetX;
-                            startPosY = e.offsetY;
-                            console.log(e.offsetX);
-                            console.log(e)
+                            let loc = cursorPoint(e);
+                            startPosX = loc.x;
+                            startPosY = loc.y;
                             drawing = true;
                         });
 
                         $('svg').on('pointermove', function (e) {
                             if (drawing) {
+                                let loc = cursorPoint(e);
                                 if ($(`#${line_id}`).length == "1") {
-                                    $(`#${line_id}`).attr("d", $(`#${line_id}`).attr("d") + `L${e.offsetX},${e.offsetY}`);
+                                    $(`#${line_id}`).attr("d", $(`#${line_id}`).attr("d") + `L${loc.x},${loc.y}`);
                                 }
                                 else {
                                     let newPath = document.createElementNS("http://www.w3.org/2000/svg", "path");
                                     newPath.setAttribute('id', line_id);
                                     newPath.setAttribute('data-id', line_id);
-                                    newPath.setAttribute('d', `M${startPosX},${startPosY}L${e.offsetX},${e.offsetY}`);
+                                    newPath.setAttribute('d', `M${startPosX},${startPosY}L${loc.x},${loc.y}`);
                                     newPath.setAttribute('stroke', 'black');
                                     newPath.setAttribute('stroke-width', '3px');
                                     newPath.setAttribute('fill', 'transparent');
@@ -459,14 +458,16 @@
             );
         }
 
-        // translate page to SVG co-ordinate
-        function svgPoint(element) {
-            var pt = $('svg')[0].createSVGPoint();
+        // Get point in global SVG space
+        function cursorPoint(evt) {
+            // Find your root SVG element
+            let svg = document.querySelector('svg');
 
-            pt.x = 0;
-            pt.y = 0;
+            // Create an SVGPoint for future math
+            let pt = svg.createSVGPoint();
 
-            return pt.matrixTransform(element.getScreenCTM().inverse());
+            pt.x = evt.clientX; pt.y = evt.clientY;
+            return pt.matrixTransform(svg.getScreenCTM().inverse());
         }
     </script>
 </body>
