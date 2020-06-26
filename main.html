@@ -174,7 +174,6 @@
         var app = new Vue({
             el: '#main',
             data: {
-                types: ["pen", "cursor", "text", "shape"],
                 type: "pen",
                 code: ""
             },
@@ -195,7 +194,6 @@
 
                         let selected_info;
 
-                        // 
                         $('svg').off('pointerdown');
                         $('svg').off('pointermove');
                         $('svg').off('pointerup');
@@ -206,11 +204,10 @@
                         let resizable = false;
 
                         $(document).on('keydown', function (e) {
-                            if (e.keyCode == 8) {
-                                if (choosenId != -1) {
-                                    $(`#${choosenId}`).remove();
-                                    choosenId = -1;
-                                }
+                            if (e.keyCode == 8 && e.keyCode == 46 && choosenId != -1) {
+                                $(`#${choosenId}`).remove();
+                                $("#resize_wrap").hide();
+                                choosenId = -1;
                             }
                         });
 
@@ -226,19 +223,9 @@
                                     if (!resizable) dragable = true;
 
                                     $('#resize_wrap').show();
-                                    selected_info = $(".choosen")[0].getBBox();
+                                    selected_border($(".choosen")[0].getBBox());
 
-                                    $("#resize_border").attr("x", selected_info.x - 5).attr("y", selected_info.y - 5).attr("width", selected_info.width + 10).attr("height", selected_info.height + 10);
-                                    $("#resize_nw").attr("x", selected_info.x - 10).attr("y", selected_info.y - 10).css("cursor", "nw-resize");
-                                    $("#resize_n").attr("x", selected_info.x + (selected_info.width / 2) - 5).attr("y", selected_info.y - 10).css("cursor", "n-resize");
-                                    $("#resize_ne").attr("x", selected_info.x + selected_info.width).attr("y", selected_info.y - 10).css("cursor", "ne-resize");
-                                    $("#resize_e").attr("x", selected_info.x + selected_info.width).attr("y", selected_info.y + (selected_info.height / 2) - 5).css("cursor", "e-resize");
-                                    $("#resize_se").attr("x", selected_info.x + selected_info.width).attr("y", selected_info.y + selected_info.height).css("cursor", "se-resize");
-                                    $("#resize_s").attr("x", selected_info.x + (selected_info.width / 2) - 5).attr("y", selected_info.y + selected_info.height).css("cursor", "s-resize");
-                                    $("#resize_sw").attr("x", selected_info.x - 10).attr("y", selected_info.y + selected_info.height).css("cursor", "sw-resize");
-                                    $("#resize_w").attr("x", selected_info.x - 10).attr("y", selected_info.y + (selected_info.height / 2) - 5).css("cursor", "w-resize");
-
-                                    var selected_css_value = $(`#${choosenId}`).css('transform');
+                                    let selected_css_value = $(`#${choosenId}`).css('transform');
 
                                     if (selected_css_value != "none") {
                                         let temp = selected_css_value.split(',');
@@ -270,20 +257,11 @@
                                 draged = true;
                             }
                             else if (resizable) {
-                                let new_selected_info = $(".choosen")[0].getBBox();
+                                selected_border($(".choosen")[0].getBBox());
 
                                 differentPosition.x = loc.x - (selected_info.x + selected_info.width);
                                 current_scale.x = (differentPosition.x + selected_info.width) / selected_info.width;
 
-                                $("#resize_border").attr("x", new_selected_info.x - 5).attr("y", new_selected_info.y - 5).attr("width", new_selected_info.width + 10).attr("height", new_selected_info.height + 10);
-                                $("#resize_nw").attr("x", new_selected_info.x - 10).attr("y", new_selected_info.y - 10).css("cursor", "nw-resize");
-                                $("#resize_n").attr("x", new_selected_info.x + (new_selected_info.width / 2) - 5).attr("y", new_selected_info.y - 10).css("cursor", "n-resize");
-                                $("#resize_ne").attr("x", new_selected_info.x + new_selected_info.width).attr("y", new_selected_info.y - 10).css("cursor", "ne-resize");
-                                $("#resize_e").attr("x", new_selected_info.x + new_selected_info.width).attr("y", new_selected_info.y + (new_selected_info.height / 2) - 5).css("cursor", "e-resize");
-                                $("#resize_se").attr("x", new_selected_info.x + new_selected_info.width).attr("y", new_selected_info.y + new_selected_info.height).css("cursor", "se-resize");
-                                $("#resize_s").attr("x", new_selected_info.x + (new_selected_info.width / 2) - 5).attr("y", new_selected_info.y + new_selected_info.height).css("cursor", "s-resize");
-                                $("#resize_sw").attr("x", new_selected_info.x - 10).attr("y", new_selected_info.y + new_selected_info.height).css("cursor", "sw-resize");
-                                $("#resize_w").attr("x", new_selected_info.x - 10).attr("y", new_selected_info.y + (new_selected_info.height / 2) - 5).css("cursor", "w-resize");
                                 $(`#${choosenId}`).css(
                                     'transform',
                                     `translate(${selected_info.x}px,${selected_info.y}px) scale(${current_scale.x},${current_scale.y}) translate(-${selected_info.x}px,-${selected_info.y}px)`
@@ -313,19 +291,8 @@
                                     $(`#${choosenId}`).css('transform', '');
                                     $(`#${choosenId}`).attr('d', new_css_value);
 
-                                    selected_info = $(".choosen")[0].getBBox();
-
+                                    selected_border($(".choosen")[0].getBBox());
                                     $("#resize_wrap").removeAttr('style')
-
-                                    $("#resize_border").attr("x", selected_info.x - 5).attr("y", selected_info.y - 5).attr("width", selected_info.width + 10).attr("height", selected_info.height + 10);
-                                    $("#resize_nw").attr("x", selected_info.x - 10).attr("y", selected_info.y - 10).css("cursor", "nw-resize");
-                                    $("#resize_n").attr("x", selected_info.x + (selected_info.width / 2) - 5).attr("y", selected_info.y - 10).css("cursor", "n-resize");
-                                    $("#resize_ne").attr("x", selected_info.x + selected_info.width).attr("y", selected_info.y - 10).css("cursor", "ne-resize");
-                                    $("#resize_e").attr("x", selected_info.x + selected_info.width).attr("y", selected_info.y + (selected_info.height / 2) - 5).css("cursor", "e-resize");
-                                    $("#resize_se").attr("x", selected_info.x + selected_info.width).attr("y", selected_info.y + selected_info.height).css("cursor", "se-resize");
-                                    $("#resize_s").attr("x", selected_info.x + (selected_info.width / 2) - 5).attr("y", selected_info.y + selected_info.height).css("cursor", "s-resize");
-                                    $("#resize_sw").attr("x", selected_info.x - 10).attr("y", selected_info.y + selected_info.height).css("cursor", "sw-resize");
-                                    $("#resize_w").attr("x", selected_info.x - 10).attr("y", selected_info.y + (selected_info.height / 2) - 5).css("cursor", "w-resize");
 
                                     draged = false;
                                 }
@@ -372,12 +339,10 @@
 
                         // Reset ==========================================================================================
                         $('svg').on('click', function (e) {
-                            if (e.target.tagName != "path" && !dragable && !resizable) {
-                                if (choosenId != -1) {
-                                    $(`#${choosenId}`).removeClass("choosen");
-                                    $("#resize_wrap").removeAttr('style').hide();
-                                    choosenId = -1;
-                                }
+                            if (e.target.tagName != "path" && !dragable && !resizable && choosenId != -1) {
+                                $(`#${choosenId}`).removeClass("choosen");
+                                $("#resize_wrap").removeAttr('style').hide();
+                                choosenId = -1;
                             }
                         });
                     }
@@ -461,7 +426,6 @@
                     }
                 }
             },
-
             computed: {
 
             },
@@ -475,9 +439,22 @@
                 setInterval(() => {
                     $("svg path").attr('stroke', `hsl(${rgb_H}, 100%, 50%)`);
                     rgb_H < 360 ? rgb_H++ : rgb_H = 0;
-                }, 1);
+                }, 10);
             }
         });
+
+        // Reset selected border coordinate =================================================================
+        function selected_border(selected_info) {
+            $("#resize_border").attr("x", selected_info.x - 5).attr("y", selected_info.y - 5).attr("width", selected_info.width + 10).attr("height", selected_info.height + 10);
+            $("#resize_nw").attr("x", selected_info.x - 10).attr("y", selected_info.y - 10).css("cursor", "nw-resize");
+            $("#resize_n").attr("x", selected_info.x + (selected_info.width / 2) - 5).attr("y", selected_info.y - 10).css("cursor", "n-resize");
+            $("#resize_ne").attr("x", selected_info.x + selected_info.width).attr("y", selected_info.y - 10).css("cursor", "ne-resize");
+            $("#resize_e").attr("x", selected_info.x + selected_info.width).attr("y", selected_info.y + (selected_info.height / 2) - 5).css("cursor", "e-resize");
+            $("#resize_se").attr("x", selected_info.x + selected_info.width).attr("y", selected_info.y + selected_info.height).css("cursor", "se-resize");
+            $("#resize_s").attr("x", selected_info.x + (selected_info.width / 2) - 5).attr("y", selected_info.y + selected_info.height).css("cursor", "s-resize");
+            $("#resize_sw").attr("x", selected_info.x - 10).attr("y", selected_info.y + selected_info.height).css("cursor", "sw-resize");
+            $("#resize_w").attr("x", selected_info.x - 10).attr("y", selected_info.y + (selected_info.height / 2) - 5).css("cursor", "w-resize");
+        }
 
         function uuidv4() {
             return ([1e7] + -1e3 + -4e3 + -8e3 + -1e11).replace(/[018]/g, c =>
@@ -485,14 +462,14 @@
             );
         }
 
+        // Find your root SVG element
+        let svg = document.querySelector('svg');
+
+        // Create an SVGPoint for future math
+        let pt = svg.createSVGPoint();
+
         // Get point in global SVG space
         function cursorPoint(evt) {
-            // Find your root SVG element
-            let svg = document.querySelector('svg');
-
-            // Create an SVGPoint for future math
-            let pt = svg.createSVGPoint();
-
             pt.x = evt.clientX; pt.y = evt.clientY;
             return pt.matrixTransform(svg.getScreenCTM().inverse());
         }
