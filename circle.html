@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=520, initial-scale=1.0">
+    <title>DrawRT 2.0</title>
+    <link href="image/favicon.png" rel="shortcut icon">
+
+    <style>
+        #box {
+            border: 1px solid #999;
+            width: 35px;
+            height: 35px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #pen {
+            background: #000;
+            border: 1px solid #000;
+            border-radius: 50%;
+            width: 5px;
+            height: 5px;
+        }
+
+        #panel {
+            width: 500px;
+            margin-bottom: 10px;
+            display: flex;
+        }
+
+        #size {
+            flex: 1 1 auto;
+        }
+
+        #color {
+            width: 60px;
+            height: auto;
+        }
+
+        #canvas {
+            display: block;
+            border: 1px solid #999;
+            cursor: 0 32, pointer;
+            touch-action: none;
+            /* TODO */
+            user-select: none;
+            
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <h1><a href="/">DrawRT 2.0</a></h1>
+    </header>
+
+    <main>
+        <div id="panel">
+            <div id="box">
+                <div id="pen"></div>
+            </div>
+
+            <input type="range" id="size" min="1" max="30" step="1" value="5" list="ticks">
+            <datalist id="ticks">
+                <option value="5">
+                <option value="10">
+                <option value="15">
+                <option value="20">
+                <option value="25">
+                <option value="30">
+            </datalist>
+
+            <input type="color" id="color" list="colors">
+            <datalist id="colors">
+                <option value="#ff0000">
+                <option value="#ffa500">
+                <option value="#ffff00">
+                <option value="#008000">
+                <option value="#0000ff">
+                <option value="#4b0082">
+                <option value="#ee82ee">
+                <option value="#000000">
+                <option value="#ffffff">
+                <option value="#999999">
+            </datalist>
+
+            <button id="clear">🗑️</button>
+
+            <button id="image">🖼️</button>
+            <input type="file" id="file" accept="image/*" hidden>
+
+            <button id="download">💾</button>
+        </div>
+
+        <canvas id="canvas" width="500" height="500"></canvas>
+    </main>
+
+    <script src="js/jquery.min.js"></script>
+    <script src="js/app.js"></script>
+    <script>
+        // (1) Interactive UI Events ==============================================================
+        $('#size').on('input', e => { 
+            let size = $('#size').val();
+            $('#pen').width(size).height(size);
+        });
+
+        $('#color').on('input', e => {
+            let color = $('#color').val();
+            $('#pen').css('background', color);
+        });
+
+        $('#size, #color').trigger('input');
+
+        $('#canvas').on('wheel', e => {
+            e.preventDefault();
+            let dy = e.originalEvent.deltaY;
+            if (dy < 0) {
+                $('#size')[0].stepUp();
+            }
+            else {
+                $('#size')[0].stepDown();
+            }
+            $('#size').trigger('input');
+        });
+
+        $(document).keydown(e => {
+            if (e.originalEvent.repeat) return;
+
+            switch (e.key) {
+                case '0': $('#clear').click(); break;
+                case '1': $('#color').val('#ff0000'); break;
+                case '2': $('#color').val('#ffa500'); break;
+                case '3': $('#color').val('#ffff00'); break;
+                case '4': $('#color').val('#008000'); break;
+                case '5': $('#color').val('#0000ff'); break;
+                case '6': $('#color').val('#4b0082'); break;
+                case '7': $('#color').val('#ee82ee'); break;
+                case '8': $('#color').val('#000000'); break;
+                case '9': $('#color').val('#ffffff'); break;
+            }
+            $('#color').trigger('input');
+        });
+
+        // (2) General Functions ==================================================================
+        const can = $('#canvas')[0];
+        const ctx = can.getContext('2d');
+
+        ctx.lineCap    = 'round';
+        ctx.lineJoin   = 'round';
+        ctx.shadowBlur = 0;
+        clear();
+
+        function drawLine(a, b, size, color) {
+            ctx.beginPath();
+            ctx.moveTo(a.x, a.y);
+            ctx.lineTo(b.x, b.y);
+            ctx.lineWidth = size;
+            ctx.strokeStyle = color;
+            ctx.shadowColor = color;
+            ctx.stroke();
+        }
+
+        // TODO: drawCurve(a, b, c, size, color)
+        function drawCurve(a, b, c, size, color){
+            ctx.beginPath();
+            ctx.moveTo(a.x,a.y);
+            ctx.quadraticCurveTo(b.x,b.y,c.x,c.y);
+            ctx.lineWidth = size;
+            ctx.strokeStyle = color;
+            ctx.shadowColor = color;
+            ctx.stroke();
+        }
+        function mid(a,b){
+            return {x: (a.x + b.x)/2 ,y: (a.y + b.y)/2};
+        }
+
+        function clear() {
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, can.width, can.height);
+        }
+
+        function drawImage(url) {
+            let img = new Image();
+            img.onload = e => {
+                ctx.drawImage(img, 0, 0);
+            };
+            img.src = url;
+        }
+
+        // TODO: mid(a, b)
+        function mid(a,b){
+            return {x: (a.x + b.x)/2 ,y: (a.y + b.y)/2};
+        }
+
+        // (3) Draw Events ========================================================================
+        // TODO
+        let arr = [];
+        
+        // TODO
+        
+
+        // TODO
+        $('#canvas').on('pointermove pointerout', e => {
+            if (e.buttons == 1 && e.originalEvent.isPrimary) {
+                let size  = $('#size').val() * 1;
+                let color = $('#color').val();
+
+                // 1. Add Start Point (if needed)
+                if(arr.length == 0){
+                    arr.push({x: e.offsetX - e.originalEvent.movementX, y :e.offsetY - e.originalEvent.movementY});
+                }
+                // 2. Add new Point
+                arr.push({x: e.offsetX, y: e.offsetY});
+                arr = arr.slice(-3);                    //Keep Last 3 point only
+                
+                if(arr.length == 3){
+                    // arr = [0,1,2]
+                    let a = mid(arr[0],arr[1]);
+                    let b = arr[1];
+                    let c = mid(arr[1],arr[2]);
+                    drawCurve(a,b,c,size,color);
+                }
+                else{
+                    // arr = [0,1]
+                    let a = arr[0];
+                    let b = mid(arr[0],arr[1]);
+                    drawLine(a,b,size,color);
+
+                }
+            }
+        });
+
+        // TODO
+        $('#canvas').on('pointerup pointerout', e => {
+            if(arr.length >=2){
+                arr = arr.slice(-2);     // Keep lasit 2 point only
+                let size  = $('#size').val() * 1;
+                let color = $('#color').val();
+                let a = mid(arr[0],arr[1]);
+                let b = arr[1];
+                drawLine(a,b,size,color);
+            }
+            arr = [];
+        });
+
+        $('#clear').click(e => {
+            clear();
+        });
+
+        $('#image').click(e => $('#file').click());
+
+        $('#file').change(e => {
+            let f = e.target.files[0];
+
+            if (f && f.type.startsWith('image/')) {
+                crop(f, can.width, can.height, 'dataURL', 'image/webp')
+                    .then(url => {
+                        drawImage(url);
+                    });
+            }
+
+            e.target.value = null;
+        });
+
+        $('#download').click(e => {
+            let a = $('<a>')[0];
+            a.href = can.toDataURL('image/png');
+            a.download = Date.now() + '.png';
+            a.click();
+        });
+
+        // (4) SignalR ============================================================================
+        
+
+    </script>
+</body>
+
+</html>
