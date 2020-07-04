@@ -116,10 +116,24 @@
             width: 1052px;
             touch-action: none;
         }
+
+        #fps {
+            position: absolute;
+            right: 10px;
+            top: 10px;
+            font-size: 30px;
+            padding: 5px;
+            background-color: white;
+            font-family: latin;
+            font-weight: bold;
+            border: 1px solid black;
+        }
     </style>
 </head>
 
 <body>
+    <div id="fps">FPS</div>
+
     <div id="main" v-cloak>
         <div id="nav">
             <!-- Creating radio buttons -->
@@ -168,6 +182,11 @@
         let line_id = null;
         let current_id = 0;
         let choosenId = null;
+
+        let rgb_H = 0;
+        let secondsPassed;
+        let oldTimeStamp;
+        let fps;
 
         var app = new Vue({
             el: '#main',
@@ -365,8 +384,6 @@
                                     arr.push({ x: temp.x, y: temp.y });
                                     arr = arr.slice(-3);
 
-
-
                                     line_id = uuidv4();
                                     let newPath = document.createElementNS("http://www.w3.org/2000/svg", "path");
                                     newPath.setAttribute('id', line_id);
@@ -433,9 +450,21 @@
         });
 
 
-        let rgb_H = 0;
 
-        function drawLoop() {
+
+        function drawLoop(timeStamp) {
+            // Calculate the number of seconds passed since the last frame
+            secondsPassed = (timeStamp - oldTimeStamp) / 1000;
+            oldTimeStamp = timeStamp;
+
+            // Calculate fps
+            fps = Math.round(1 / secondsPassed);
+
+            // Display fps
+            fps > 20 ?
+                $('#fps').html(`${fps}`).css("color", "green") :
+                $('#fps').html(`${fps}`).css("color", "red");
+
             $("svg path:not(#resize_wrap *)").attr('stroke', `hsl(${rgb_H}, 100%, 50%)`);
             rgb_H < 360 ? rgb_H++ : rgb_H = 0;
             $("label#pen span").css("color", `hsl(${rgb_H}, 100%, 50%)`);
