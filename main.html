@@ -163,6 +163,8 @@
     <script src="js/jquery.min.js"></script>
     <script src="js/vue.js"></script>
     <script>
+        "use strict"
+
         let line_id = null;
         let current_id = 0;
         let choosenId = null;
@@ -179,7 +181,7 @@
             methods: {
                 menu: function () {
                     if (this.type == "cursor") {
-                        
+
                         let cursorPosition = { x: 0.00, y: 0.00 };
                         let differentPosition = { x: 0.00, y: 0.00 };
                         let position = { x: 0.00, y: 0.00 };
@@ -196,7 +198,7 @@
                         // Reset previous stuff and off listener
                         $('svg').off('pointermove pointerout');
                         $('svg').off('pointerup pointerleave');
-                        
+
 
                         $(document).on('keydown', function (e) {
                             if (e.keyCode == 8 || e.keyCode == 46 && choosenId) {
@@ -211,7 +213,7 @@
                             if (e.target.tagName == "path") {
                                 if (choosenId) $(`#${choosenId}`).removeClass("choosen");
 
-                                choosenId = $(this).data('id');
+                                choosenId = $(this).attr('id');
                                 $(`#${choosenId}`).addClass("choosen");
 
                                 if (e.target.classList.contains('choosen')) {
@@ -278,8 +280,8 @@
                                         let temp2 = i.split(",");
                                         if ($.isNumeric(temp2[0]) && $.isNumeric(temp2[1])) {
                                             !new_css_value ?
-                                                new_css_value = `M${(parseFloat(temp2[0]) + position.x)},${(parseFloat(temp2[1]) + position.y)},` :
-                                                new_css_value += `Q${(parseFloat(temp2[0]) + position.x)},${(parseFloat(temp2[1]) + position.y)},${(parseFloat(temp2[2]) + position.x)},${(parseFloat(temp2[3]) + position.y)},`;
+                                                new_css_value = `M${(parseFloat(temp2[0]) + position.x).toFixed(2)},${(parseFloat(temp2[1]) + position.y).toFixed(2)},` :
+                                                new_css_value += `Q${(parseFloat(temp2[0]) + position.x).toFixed(2)},${(parseFloat(temp2[1]) + position.y).toFixed(2)},${(parseFloat(temp2[2]) + position.x).toFixed(2)},${(parseFloat(temp2[3]) + position.y).toFixed(2)}`;
                                         }
                                     }
                                     $(`#${choosenId}`).css('transform', '');
@@ -351,23 +353,24 @@
                         // Drawing =========================================================================================
                         let arr = [];
 
-
                         $('svg *').off('pointerdown');
                         $('svg').off('pointermove pointerup click');
-                        
-                        
+
                         $('svg').on('pointermove pointerout', function (e) {
                             if (e.buttons == 1 && e.originalEvent.isPrimary) {
                                 let temp = cursorPoint(e);
-                                arr.push({ x: temp.x - e.originalEvent.movementX, y: temp.y - e.originalEvent.movementY });
-                                arr.push({ x: temp.x, y: temp.y });
-                                arr = arr.slice(-3);
+
                                 if (!line_id) {
+                                    arr.push({ x: temp.x - e.originalEvent.movementX, y: temp.y - e.originalEvent.movementY });
+                                    arr.push({ x: temp.x, y: temp.y });
+                                    arr = arr.slice(-3);
+
+
+
                                     line_id = uuidv4();
                                     let newPath = document.createElementNS("http://www.w3.org/2000/svg", "path");
                                     newPath.setAttribute('id', line_id);
-                                    newPath.setAttribute('data-id', line_id);
-                                    newPath.setAttribute('d', `M${arr[0].x},${arr[0].y}`);
+                                    newPath.setAttribute('d', `M${simplifyNumber(arr[0].x)},${simplifyNumber(arr[0].y)}`);
                                     newPath.setAttribute('stroke', 'black');
                                     newPath.setAttribute('stroke-width', '5px');
                                     newPath.setAttribute('fill', 'transparent');
@@ -375,18 +378,14 @@
                                     newPath.setAttribute('stroke-linecap', 'round');
                                     $(this).append(newPath);
                                 } else {
-                                    if (arr.length == 3) {
-                                        let a = mid(arr[0], arr[1]);
-                                        // let b = arr[2];
-                                        let b = mid(arr[1], arr[2]);
-                                        drawCurve(a, b);
-                                    }
-                                    // else {
-                                    //     drawLine(arr[0], arr[1]);
-                                    // }
+                                    arr.push({ x: temp.x, y: temp.y });
+                                    arr = arr.slice(-3);
+
+                                    drawCurve(mid(arr[0], arr[1]), mid(arr[1], arr[2]));
                                 }
                             }
                         });
+
                         $('svg').on('pointerup pointerleave', function (e) {
                             // if(arr.length >= 2){
                             //     arr = arr.slice(-2);
@@ -429,29 +428,39 @@
             mounted() {
                 this.menu();
                 // RGB Stroke ================================================
-                let rgb_H = 0;
-                setInterval(() => {
-                    $("svg path").attr('stroke', `hsl(${rgb_H}, 100%, 50%)`);
-                    rgb_H < 360 ? rgb_H++ : rgb_H = 0;
-                    $("label#pen span").css("color", `hsl(${rgb_H}, 100%, 50%)`);
-                }, 10);
+                window.requestAnimationFrame(drawLoop);
             }
         });
 
+
+        let rgb_H = 0;
+
+        function drawLoop() {
+            $("svg path:not(#resize_wrap *)").attr('stroke', `hsl(${rgb_H}, 100%, 50%)`);
+            rgb_H < 360 ? rgb_H++ : rgb_H = 0;
+            $("label#pen span").css("color", `hsl(${rgb_H}, 100%, 50%)`);
+            window.requestAnimationFrame(drawLoop);
+        }
+
         /* ==================================== Function ======================================== */
         // Drawing function
-        function drawLine(a, b) {
-            if (line_id) {
-                $(`#${line_id}`).attr("d", $(`#${line_id}`).attr("d") + `L${a.x},${a.y},${b.x},${b.y},`);
-            }
-        }
         function mid(a, b) {
             return { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 };
         }
-        function drawCurve(a, b,c) {
+
+        function drawCurve(a, b) {
             if (line_id) {
-                $(`#${line_id}`).attr("d", $(`#${line_id}`).attr("d") + `Q${a.x},${a.y},${b.x},${b.y},`);
+                $(`#${line_id}`).attr("d",
+                    `${$(`#${line_id}`).attr("d")}Q${simplifyNumber(a.x)},${simplifyNumber(a.y)},${simplifyNumber(b.x)},${simplifyNumber(b.y)}`
+                );
             }
+        }
+
+        function simplifyNumber(n) {
+            if (!$.isNumeric(n)) return;
+
+            return (n - Math.floor(n)) !== 0 ?
+                n.toFixed(2) : n.toFixed(0);
         }
 
         // Reset selected border coordinate
