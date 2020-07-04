@@ -77,10 +77,6 @@
             color: white;
         }
 
-        path {
-            /* display: block; */
-        }
-
         path.choosen {
             cursor: move;
         }
@@ -445,7 +441,6 @@
         /* ==================================== Function ======================================== */
         // Drawing function
         function drawLine(a, b) {
-            console.log("2l");
             if (line_id) {
                 $(`#${line_id}`).attr("d", $(`#${line_id}`).attr("d") + `L${a.x},${a.y},${b.x},${b.y},`);
             }
@@ -454,7 +449,6 @@
             return { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 };
         }
         function drawCurve(a, b,c) {
-            console.log("1c");
             if (line_id) {
                 $(`#${line_id}`).attr("d", $(`#${line_id}`).attr("d") + `Q${a.x},${a.y},${b.x},${b.y},`);
             }
