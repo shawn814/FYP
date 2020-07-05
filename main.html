@@ -31,6 +31,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            position: relative;
         }
 
         #nav {
@@ -111,10 +112,18 @@
         }
 
         svg {
-            background-color: white;
             height: 744px;
             width: 1052px;
             touch-action: none;
+            position: absolute;
+        }
+
+        #draw {
+            border: 1px solid black;
+        }
+
+        #grid_wrap {
+            background-color: white;
         }
 
         #fps {
@@ -158,7 +167,21 @@
         </div>
 
         <div id="content">
+            <svg id="grid_wrap" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                    <pattern id="smallGrid" width="8" height="8" patternUnits="userSpaceOnUse">
+                        <path d="M 8 0 L 0 0 0 8" fill="none" stroke="gray" stroke-width="0.5" />
+                    </pattern>
+                    <pattern id="grid" width="80" height="80" patternUnits="userSpaceOnUse">
+                        <rect width="80" height="80" fill="url(#smallGrid)" />
+                        <path d="M 80 0 L 0 0 0 80" fill="none" stroke="gray" stroke-width="1" />
+                    </pattern>
+                </defs>
+
+                <rect width="100%" height="100%" fill="url(#grid)" />
+            </svg>
             <svg id="draw" viewBox="0 0 1052 744">
+                <path fill="transparent" d="M100,100C200,200,100,300,100,300C100,300,200,400,200,400"></path>
                 <g id="resize_wrap">
                     <rect id="resize_border" fill="none" stroke="lightblue" stroke-width="1px" />
                     <rect id="resize_nw" width="10" height="10" />
@@ -299,7 +322,7 @@
                                         let temp2 = i.split(",");
                                         if ($.isNumeric(temp2[0]) && $.isNumeric(temp2[1])) {
                                             !new_css_value ?
-                                                new_css_value = `M${(parseFloat(temp2[0]) + position.x).toFixed(2)},${(parseFloat(temp2[1]) + position.y).toFixed(2)},` :
+                                                new_css_value = `M${(parseFloat(temp2[0]) + position.x).toFixed(2)},${(parseFloat(temp2[1]) + position.y).toFixed(2)}` :
                                                 new_css_value += `Q${(parseFloat(temp2[0]) + position.x).toFixed(2)},${(parseFloat(temp2[1]) + position.y).toFixed(2)},${(parseFloat(temp2[2]) + position.x).toFixed(2)},${(parseFloat(temp2[3]) + position.y).toFixed(2)}`;
                                         }
                                     }
@@ -382,7 +405,7 @@
                                 if (!line_id) {
                                     arr.push({ x: temp.x - e.originalEvent.movementX, y: temp.y - e.originalEvent.movementY });
                                     arr.push({ x: temp.x, y: temp.y });
-                                    arr = arr.slice(-3);
+                                    arr = arr.slice(-2);
 
                                     line_id = uuidv4();
                                     let newPath = document.createElementNS("http://www.w3.org/2000/svg", "path");
@@ -394,22 +417,45 @@
                                     newPath.setAttribute('stroke-linejoin', 'round');
                                     newPath.setAttribute('stroke-linecap', 'round');
                                     $(this).append(newPath);
-                                } else {
+                                } else if (temp.x != arr[1].x || temp.y != arr[1].y) {
                                     arr.push({ x: temp.x, y: temp.y });
                                     arr = arr.slice(-3);
 
-                                    drawCurve(mid(arr[0], arr[1]), mid(arr[1], arr[2]));
+                                    $(`#${line_id}`).attr("d",
+                                        `${$(`#${line_id}`).attr("d")}Q${simplifyNumber(arr[1].x)},${simplifyNumber(arr[1].y)},${simplifyNumber(arr[2].x)},${simplifyNumber(arr[2].y)}`
+                                    );
+                                    // drawCurve(mid(arr[0], arr[1]), mid(arr[1], arr[2]));
                                 }
                             }
                         });
 
                         $('svg').on('pointerup pointerleave', function (e) {
-                            // if(arr.length >= 2){
-                            //     arr = arr.slice(-2);
-                            //     let a = mid(arr[0],arr[1]);
-                            //     drawLine(a,arr[1]);
-                            // }
+                            if (e.target.tagName == "path" && choosenId) {
+                                const selected_css_value = $(`#${choosenId}`).css('transform').split(',');
 
+                                if (selected_css_value != "none") {
+                                    position = { x: parseFloat(selected_css_value[4]), y: parseFloat(selected_css_value[5]) };
+
+                                    let coordinate = $(`#${choosenId}`).attr('d').substring(1).split("Q");
+                                    let new_css_value;
+
+                                    for (let i of coordinate) {
+                                        let temp2 = i.split(",");
+                                        if ($.isNumeric(temp2[0]) && $.isNumeric(temp2[1])) {
+                                            !new_css_value ?
+                                                new_css_value = `M${(parseFloat(temp2[0]) + position.x).toFixed(2)},${(parseFloat(temp2[1]) + position.y).toFixed(2)}` :
+                                                new_css_value += `Q${(parseFloat(temp2[0]) + position.x).toFixed(2)},${(parseFloat(temp2[1]) + position.y).toFixed(2)},${(parseFloat(temp2[2]) + position.x).toFixed(2)},${(parseFloat(temp2[3]) + position.y).toFixed(2)}`;
+                                        }
+                                    }
+                                    $(`#${choosenId}`).css('transform', '');
+                                    $(`#${choosenId}`).attr('d', new_css_value);
+
+                                    selected_border($(".choosen")[0].getBBox());
+                                    $("#resize_wrap").removeAttr('style')
+
+                                    draged = false;
+                                }
+                            }
                             line_id = null;
                             arr = [];
                         });
@@ -446,6 +492,18 @@
                 this.menu();
                 // RGB Stroke ================================================
                 window.requestAnimationFrame(drawLoop);
+
+                $("#draw").on('mousewheel keydown', function (e) {
+                    if (e.ctrlKey) {
+                        e.preventDefault();
+                        let scale = $("#draw,#grid_wrap")[0].getBoundingClientRect().width / $("#draw").width();
+                        if (e.originalEvent.wheelDelta / 120 > 0) {
+                            if (scale < 5) $("#draw,#grid_wrap").css("transform", `scale(${(scale + 0.05).toFixed(2)})`);
+                        } else {
+                            if (scale >= 0.1) $("#draw,#grid_wrap").css("transform", `scale(${(scale - 0.05).toFixed(2)})`);
+                        }
+                    }
+                })
             }
         });
 
@@ -459,9 +517,9 @@
 
             // Display fps
             fps > 20 ? $('#fps').html(`${fps}`).css("color", "green") :
-                       $('#fps').html(`${fps}`).css("color", "red");
+                $('#fps').html(`${fps}`).css("color", "red");
 
-            $("svg path:not(#resize_wrap *)").attr('stroke', `hsl(${rgb_H}, 100%, 50%)`);
+            $("#draw path:not(#resize_wrap *)").attr('stroke', `hsl(${rgb_H}, 100%, 50%)`);
             rgb_H < 360 ? rgb_H++ : rgb_H = 0;
             $("label#pen span").css("color", `hsl(${rgb_H}, 100%, 50%)`);
             window.requestAnimationFrame(drawLoop);
