@@ -159,10 +159,29 @@
                     <input type="radio" name="type" value="text" v-model="type" v-on:change="menu">
                     <span class="material-icons">title</span>
                 </label>
-                <label v-bind:class="{ typeActive: type=='shape' }" id="shape">
-                    <input type="radio" name="type" value="shape" v-model="type" v-on:change="menu">
+                <label v-bind:class="{ typeActive: type=='rect' }" id="rect">
+                    <input type="radio" name="type" value="rect" v-model="type" v-on:change="menu">
                     <span class="material-icons">crop_5_4</span>
                 </label>
+                <label v-bind:class="{ typeActive: type=='circle' }" id="circle">
+                    <input type="radio" name="type" value="circle" v-model="type" v-on:change="menu">
+                    <span class="material-icons">panorama_fish_eye</span>
+                </label>
+                <label v-bind:class="{ typeActive: type=='line' }" id="line">
+                    <input type="radio" name="type" value="line" v-model="type" v-on:change="menu">
+                    <span class="material-icons">horizontal_rule</span>
+                </label>
+                <label v-bind:class="{ typeActive: type=='upload' }" id="upload">
+                    <input type="radio" name="type" value="upload" v-model="type" v-on:change="menu">
+                    <span class="material-icons">cloud_upload</span>
+                    <input type="file" name="file" id="file" hidden>
+                </label>
+                <label v-bind:class="{ typeActive: type=='save' }" id="save">
+                    <input type="radio" name="type" value="save" v-model="type" v-on:change="menu">
+                    <span class="material-icons">save</span>
+                </label>
+
+
             </div>
         </div>
 
@@ -198,12 +217,14 @@
 
     <script src="js/jquery.min.js"></script>
     <script src="js/vue.js"></script>
+    <script src="js/image.js"></script>
     <script>
         "use strict"
 
         let line_id = null;
         let current_id = 0;
         let choosenId = null;
+        let points = [];   // Used in Draw Line 
 
         let rgb_H = 0;
         let secondsPassed;
@@ -221,6 +242,7 @@
             },
             methods: {
                 menu: function () {
+                    let newPath = null;
                     if (this.type == "cursor") {
 
                         let cursorPosition = { x: 0.00, y: 0.00 };
@@ -239,6 +261,9 @@
                         // Reset previous stuff and off listener
                         $('svg').off('pointermove pointerout');
                         $('svg').off('pointerup pointerleave');
+                        $("svg").off("click");
+
+
 
 
                         $(document).on('keydown', function (e) {
@@ -407,7 +432,7 @@
                                     arr = arr.slice(-2);
 
                                     line_id = uuidv4();
-                                    let newPath = document.createElementNS("http://www.w3.org/2000/svg", "path");
+                                    newPath = document.createElementNS("http://www.w3.org/2000/svg", "path");
                                     newPath.setAttribute('id', line_id);
                                     newPath.setAttribute('d', `M${simplifyNumber(arr[0].x)},${simplifyNumber(arr[0].y)}`);
                                     newPath.setAttribute('stroke', 'black');
@@ -420,8 +445,13 @@
                                     arr.push({ x: temp.x, y: temp.y });
                                     arr = arr.slice(-3);
 
+                                    // $(`#${line_id}`).attr("d",
+                                    //     `${$(`#${line_id}`).attr("d")}Q${simplifyNumber(arr[1].x)},${simplifyNumber(arr[1].y)},${simplifyNumber(arr[2].x)},${simplifyNumber(arr[2].y)}`
+                                    // );
+                                    let a = mid(arr[0], arr[1]);
+                                    let b = mid(arr[1], arr[2]);
                                     $(`#${line_id}`).attr("d",
-                                        `${$(`#${line_id}`).attr("d")}Q${simplifyNumber(arr[1].x)},${simplifyNumber(arr[1].y)},${simplifyNumber(arr[2].x)},${simplifyNumber(arr[2].y)}`
+                                        `${$(`#${line_id}`).attr("d")}Q${simplifyNumber(a.x)},${simplifyNumber(a.y)},${simplifyNumber(b.x)},${simplifyNumber(b.y)}`
                                     );
                                     // drawCurve(mid(arr[0], arr[1]), mid(arr[1], arr[2]));
                                 }
@@ -455,6 +485,7 @@
                                     draged = false;
                                 }
                             }
+                            newPath = null;
                             line_id = null;
                             arr = [];
                         });
@@ -476,8 +507,205 @@
                             newText.setAttribute()
                         })*/
                     }
-                    else {
+                    else if (this.type == "rect") {
+                        let rect_id = null;
+                        let start = {};
+                        let dif = {};
+                        $("svg").off("pointerdown");
+                        $("svg").off("pointermove");
+                        $("svg").off("pointerup");
 
+                        $('svg').off('pointermove pointerout');
+                        $('svg').off('pointerup pointerleave');
+
+                        $("svg").off("click");
+
+
+                        // $("svg").css("cursor", "crosshair");
+
+                        $("svg").on("pointerdown", function (e) {
+                            rect_id = uuidv4();
+                            start = { x: cursorPoint(e).x, y: cursorPoint(e).y };
+                        });
+                        $("svg").on("pointermove", function (e) {
+                            if (e.buttons == 1 && e.originalEvent.isPrimary) {
+                                let cursor = cursorPoint(e);
+                                if ($.isEmptyObject(dif)) {
+                                    newPath = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+                                    newPath.setAttribute('id', rect_id);
+                                    newPath.setAttribute('x', start.x);
+                                    newPath.setAttribute('y', start.y);
+                                    newPath.setAttribute('fill', "transparent");
+                                    newPath.setAttribute('stroke', 'black');
+                                    newPath.setAttribute('stroke-width', '3px');
+                                }
+                                dif = { x: cursor.x - start.x, y: cursor.y - start.y };
+                                if (dif.x < 0 && dif.y < 0) {
+                                    newPath.setAttribute("x", cursor.x);
+                                    newPath.setAttribute("y", cursor.y);
+                                    newPath.setAttribute('width', start.x - cursor.x);
+                                    newPath.setAttribute('height', start.y - cursor.y);
+                                } else if (dif.x < 0) {
+                                    newPath.setAttribute("x", cursor.x);
+                                    newPath.setAttribute("y", start.y);
+                                    newPath.setAttribute("width", start.x - cursor.x);
+                                    newPath.setAttribute('height', dif.y);
+
+                                } else if (dif.y < 0) {
+                                    newPath.setAttribute("y", cursor.y);
+                                    newPath.setAttribute("x", start.x);
+                                    newPath.setAttribute('width', dif.x);
+                                    newPath.setAttribute('height', start.y - cursor.y);
+                                } else {
+                                    newPath.setAttribute("x", start.x);
+                                    newPath.setAttribute("y", start.y);
+                                    newPath.setAttribute('width', dif.x);
+                                    newPath.setAttribute('height', dif.y);
+                                }
+                                $(this).append(newPath);
+                            }
+                        });
+                        $("svg").on("pointerup", function (e) {
+                            newPath = null;
+                            rect_id = null;
+                            dif = null;
+                        });
+                    }
+                    else if (this.type == "circle") {
+                        let start = {};
+                        let dif = {};
+                        let circle_id = {};
+
+                        $("svg").off("pointerdown");
+                        $("svg").off("pointermove");
+                        $("svg").off("pointerup");
+
+
+                        $('svg').off('pointermove pointerout');
+                        $('svg').off('pointerup pointerleave');
+                        $("svg").off("click");
+
+                        $("svg").on("pointerdown", function (e) {
+                            circle_id = uuidv4();
+                            start = { x: cursorPoint(e).x, y: cursorPoint(e).y };
+                        });
+                        $("svg").on("pointermove", function (e) {
+                            if (e.buttons == 1 && e.originalEvent.isPrimary) {
+                                let cursor = cursorPoint(e);
+                                if ($.isEmptyObject(dif)) {
+                                    newPath = document.createElementNS("http://www.w3.org/2000/svg", "ellipse");
+                                    newPath.setAttribute('id', circle_id);
+                                    newPath.setAttribute('cx', start.x);
+                                    newPath.setAttribute('cy', start.y);
+                                    newPath.setAttribute('fill', "transparent");
+                                    newPath.setAttribute('stroke', 'black');
+                                    newPath.setAttribute('stroke-width', '3px');
+                                }
+                                dif = { x: cursor.x - start.x, y: cursor.y - start.y };
+                                if (dif.x < 0 && dif.y < 0) {
+                                    newPath.setAttribute('rx', start.x - cursor.x);
+                                    newPath.setAttribute('ry', start.y - cursor.y);
+                                } else if (dif.x < 0) {
+                                    newPath.setAttribute("rx", start.x - cursor.x);
+                                    newPath.setAttribute('ry', dif.y);
+
+                                } else if (dif.y < 0) {
+                                    newPath.setAttribute('rx', dif.x);
+                                    newPath.setAttribute('ry', start.y - cursor.y);
+                                } else {
+                                    newPath.setAttribute('rx', dif.x);
+                                    newPath.setAttribute('ry', dif.y);
+                                }
+                                $(this).append(newPath);
+                            }
+                        });
+                        $("svg").on("pointerup", function (e) {
+                            newPath = null;
+                            circle_id = null;
+                            dif = null;
+                        });
+                    }
+                    else if (this.type == "line") {
+                        $("svg").off("pointerdown");
+                        $("svg").off("pointermove");
+                        $("svg").off("pointerup");
+
+                        $('svg').off('pointermove pointerout');
+                        $('svg').off('pointerup pointerleave');
+
+                        $("svg").off("click");
+
+                        let start = {};
+                        let line_id = {};
+                        let cursor = null;
+
+                        $("svg").on("pointerdown", function (e) {
+                            line_id = uuidv4();
+                            cursor = cursorPoint(e);
+                            let newPoint = comparePoint(cursor);
+                            if (newPoint)
+                                start = { x: newPoint.x, y: newPoint.y }
+                            else
+                                start = { x: cursor.x, y: cursor.y };
+                        });
+                        $("svg").on("pointermove", function (e) {
+                            if (e.buttons == 1 && e.originalEvent.isPrimary) {
+                                cursor = cursorPoint(e);
+                                if (!newPath) {
+                                    newPath = document.createElementNS("http://www.w3.org/2000/svg", "path");
+                                    newPath.setAttribute('id', line_id);
+                                    newPath.setAttribute('fill', "transparent");
+                                    newPath.setAttribute('stroke', 'black');
+                                    newPath.setAttribute('stroke-width', '3px');
+                                    newPath.setAttribute('stroke-linejoin', 'round');
+                                    newPath.setAttribute('stroke-linecap', 'round');
+                                }
+                                newPath.setAttribute('d', `M${start.x},${start.y},L${cursor.x},${cursor.y}`);
+                                $(this).append(newPath);
+                            }
+                        });
+                        $("svg").on("pointerup", function (e) {
+                            let newPoint = comparePoint(cursor);
+                            if (newPoint)
+                                newPath.setAttribute('d', `M${start.x},${start.y},L${newPoint.x},${newPoint.y}`);
+                            points.push(start);
+                            points.push({ x: cursor.x, y: cursor.y });
+                            newPath = null;
+                            cursor = null;
+                            line_id = null;
+                        });
+
+                    }
+                    else if (this.type == "upload") {
+                        $("svg").off("pointerdown");
+                        $("svg").off("pointermove");
+                        $("svg").off("pointerup");
+
+
+                        $('svg').off('pointermove pointerout');
+                        $('svg').off('pointerup pointerleave');
+
+                        let image_id = uuidv4();
+                        
+
+                        $("#file").click();
+                        $('#file').change(async e => {
+                            let f = e.target.files[0];
+                            console.log(f);
+                            let svg = $('#draw').attr("viewBox").split(" ");
+                            if (f && f.type.startsWith('image/')) {
+                                // TODO: Use async-await syntax
+                                let url = await crop(f, svg[2], svg[3], 'dataURL', 'image/webp');
+                                newPath = document.createElementNS("http://www.w3.org/2000/svg", "image");
+                                newPath.setAttribute('id',image_id);
+                                newPath.setAttribute('href', url);
+                                $("#draw").append(newPath);
+                            }
+                            e.target.value = null;
+                            newPath = null;
+                        });
+                    }
+                    else if (this.type == "save") {
                     }
                 }
             },
@@ -538,6 +766,7 @@
             }
         }
 
+
         function simplifyNumber(n) {
             if (!$.isNumeric(n)) return;
             return (n - Math.floor(n)) !== 0 ? n.toFixed(2) : n.toFixed(0);
@@ -560,6 +789,17 @@
             return ([1e7] + -1e3 + -4e3 + -8e3 + -1e11).replace(/[018]/g, c =>
                 (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)
             );
+        }
+
+        // Get the nearest point
+        function comparePoint(cursor) {
+            let pointReturn = null;
+            for (var point of points) {
+                if (cursor.x >= point.x - 10 && cursor.x <= point.x + 10 && cursor.y >= point.y - 10 && cursor.y <= point.y + 10) {
+                    pointReturn = point;
+                }
+            }
+            return pointReturn;
         }
 
         // The smoothing ratio
