@@ -445,14 +445,14 @@
                                     arr.push({ x: temp.x, y: temp.y });
                                     arr = arr.slice(-3);
 
-                                    // $(`#${line_id}`).attr("d",
-                                    //     `${$(`#${line_id}`).attr("d")}Q${simplifyNumber(arr[1].x)},${simplifyNumber(arr[1].y)},${simplifyNumber(arr[2].x)},${simplifyNumber(arr[2].y)}`
-                                    // );
-                                    let a = mid(arr[0], arr[1]);
-                                    let b = mid(arr[1], arr[2]);
                                     $(`#${line_id}`).attr("d",
-                                        `${$(`#${line_id}`).attr("d")}Q${simplifyNumber(a.x)},${simplifyNumber(a.y)},${simplifyNumber(b.x)},${simplifyNumber(b.y)}`
+                                        `${$(`#${line_id}`).attr("d")}Q${simplifyNumber(arr[1].x)},${simplifyNumber(arr[1].y)},${simplifyNumber(arr[2].x)},${simplifyNumber(arr[2].y)}`
                                     );
+                                    // let a = mid(arr[0], arr[1]);
+                                    // let b = mid(arr[1], arr[2]);
+                                    // $(`#${line_id}`).attr("d",
+                                    //     `${$(`#${line_id}`).attr("d")}Q${simplifyNumber(a.x)},${simplifyNumber(a.y)},${simplifyNumber(b.x)},${simplifyNumber(b.y)}`
+                                    // );
                                     // drawCurve(mid(arr[0], arr[1]), mid(arr[1], arr[2]));
                                 }
                             }
@@ -691,7 +691,6 @@
                         $("#file").click();
                         $('#file').change(async e => {
                             let f = e.target.files[0];
-                            console.log(f);
                             let svg = $('#draw').attr("viewBox").split(" ");
                             if (f && f.type.startsWith('image/')) {
                                 // TODO: Use async-await syntax
