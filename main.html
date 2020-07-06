@@ -326,18 +326,18 @@
                             break;
                         case "cursor":      // Move
                             if (e.target.tagName == "path") {
-                                if (choosen_id) $(`#${choosen_id}`).removeClass("choosen");
+                                position = { x: 0, y: 0 };
+                                cursorPosition = current_position;
+                                drag = true;
 
-                                choosen_id = e.target.id;
-                                $(`#${choosen_id}`).addClass("choosen");
-
-                                if (e.target.classList.contains('choosen')) {
+                                if (!choosen_id && e.type == 'pointerdown') {
+                                    choosen_id = e.target.id;
+                                    $(`#${choosen_id}`).addClass("choosen");
                                     $('#resize_wrap').show();
                                     selected_border($(".choosen")[0].getBBox());
-
-                                    position = { x: 0, y: 0 };
-                                    cursorPosition = current_position;
-                                    drag = true;
+                                }
+                                else if (e.type != 'pointerdown') {
+                                    drag = false;
                                 }
                             }
                             break;
@@ -346,11 +346,11 @@
                             break;
                         case "rect":        // Rectangle
                             app.unselect();
-                            cursorPosition = { x: cursorPoint(e).x, y: cursorPoint(e).y };
+                            cursorPosition = { x: current_position.x, y: current_position.y };
                             break;
                         case "circle":      // Circle
                             app.unselect();
-                            cursorPosition = { x: cursorPoint(e).x, y: cursorPoint(e).y };
+                            cursorPosition = { x: current_position.x, y: current_position.y };
                             break;
                         case "line":        // Line
                             app.unselect();
@@ -396,11 +396,9 @@
                             if (!choosen_id) break;
 
                             if (drag) {
-                                differentPosition = { x: current_position.x - cursorPosition.x, y: current_position.y - cursorPosition.y };
-                                current_position = { x: position.x + differentPosition.x, y: position.y + differentPosition.y };
-
-                                $(`#${choosen_id}`).css('transform', `translate(${current_position.x}px,${current_position.y}px)`);
-                                $('#resize_wrap').css('transform', `translate(${current_position.x}px,${current_position.y}px)`);
+                                $(`#${choosen_id},#resize_wrap`).css('transform',
+                                    `translate(${current_position.x - cursorPosition.x}px,${current_position.y - cursorPosition.y}px)`
+                                );
                             }
                             else if (resize) {
                                 selected_border($(".choosen")[0].getBBox());
@@ -538,8 +536,6 @@
                                 const selected_css_value = $(`#${choosen_id}`).css('transform').split(',');
 
                                 if (drag && selected_css_value != "none") {
-                                    drag = false;
-
                                     position = { x: parseFloat(selected_css_value[4]), y: parseFloat(selected_css_value[5]) };
 
                                     const coord = $(`#${choosen_id}`).attr('d').substring(1).split("Q");
@@ -561,7 +557,8 @@
                                     $("#resize_wrap").removeAttr('style');
                                 }
                             }
-                            cursorPosition = differentPosition = position = null;
+                            cursorPosition = position = null;
+                            drag = false;
                             break;
                         case "text":        // Textbox
 
