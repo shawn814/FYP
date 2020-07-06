@@ -576,7 +576,7 @@
                             e.preventDefault();
                             if (e.buttons == 1 && e.originalEvent.isPrimary) {
                                 let cursor = cursorPoint(e);
-                                
+
                                 if (!dif) { // check new element
                                     newPath = document.createElementNS("http://www.w3.org/2000/svg", "ellipse");
                                     newPath.setAttribute('id', circle_id);
@@ -591,6 +591,14 @@
 
                                 dif = { x: Math.abs(cursor.x - start.x), y: Math.abs(cursor.y - start.y) };
 
+                                // Prefect circle ===================================================
+                                if (e.shiftKey) dif.x > dif.y ? dif.y = dif.x : dif.x = dif.y
+
+                                // Set circle size ==================================================
+                                newPath.setAttribute('rx', dif.x / 2);
+                                newPath.setAttribute('ry', dif.y / 2);
+
+                                // Fix position =====================================================
                                 if (cursor.x - start.x < 0 && cursor.y - start.y < 0) {  // left top
                                     newPath.setAttribute('cx', start.x - dif.x / 2);
                                     newPath.setAttribute('cy', start.y - dif.y / 2);
@@ -607,9 +615,6 @@
                                     newPath.setAttribute('cx', start.x + dif.x / 2);
                                     newPath.setAttribute('cy', start.y + dif.y / 2);
                                 }
-
-                                newPath.setAttribute('rx', dif.x / 2);
-                                newPath.setAttribute('ry', dif.y / 2);
                             }
                         });
 
