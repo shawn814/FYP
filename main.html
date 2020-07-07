@@ -284,13 +284,6 @@
                 },
                 save: function (e) {
 
-                },
-                unselect: function () {
-                    if (choosen_id) {
-                        $(`#${choosen_id}`).removeAttr("class");
-                        $("#resize_wrap").removeAttr('style').hide();
-                        choosen_id = null;
-                    }
                 }
             },
             computed: {
@@ -313,60 +306,59 @@
                 // Flag
                 let drag = false;
                 let resize = false;
+                let outbound = false;
+
+                let svgDraw = document.querySelector('svg#draw')
 
                 window.requestAnimationFrame(update); // update by frame
 
                 $("svg#draw").on('pointerdown pointerenter', function (e) {
-                    e.preventDefault();
-                    let current_position = cursorPoint(e);
+                    if (e.buttons == 1 && e.originalEvent.isPrimary) {
+                        e.preventDefault();
+                        let current_position = cursorPoint(e);
+                        outbound = true;
 
-                    switch (app.type) {
-                        case "pen":         // Draw
-                            app.unselect();
-                            break;
-                        case "cursor":      // Move
-                            if (e.target.tagName == "path") {
-                                position = { x: 0, y: 0 };
-                                cursorPosition = current_position;
-                                drag = true;
-
-                                if (!choosen_id && e.type == 'pointerdown') {
+                        switch (app.type) {
+                            case "pen":         // Draw
+                                unselect();
+                                break;
+                            case "cursor":      // Move
+                                if (e.target.tagName == "path") {
                                     choosen_id = e.target.id;
-                                    $(`#${choosen_id}`).addClass("choosen");
                                     $('#resize_wrap').show();
-                                    selected_border($(".choosen")[0].getBBox());
+                                    selected_border($(`#${choosen_id}`)[0].getBBox());
+                                    position = { x: 0, y: 0 };
+                                    cursorPosition = current_position;
+                                    drag = true;
                                 }
-                                else if (e.type != 'pointerdown') {
-                                    drag = false;
-                                }
-                            }
-                            break;
-                        case "text":        // Textbox
+                                break;
+                            case "text":        // Textbox
 
-                            break;
-                        case "rect":        // Rectangle
-                            app.unselect();
-                            cursorPosition = { x: current_position.x, y: current_position.y };
-                            break;
-                        case "circle":      // Circle
-                            app.unselect();
-                            cursorPosition = { x: current_position.x, y: current_position.y };
-                            break;
-                        case "line":        // Line
-                            app.unselect();
-                            break;
-                        default:
-                            break;
+                                break;
+                            case "rect":        // Rectangle
+                                unselect();
+                                cursorPosition = { x: current_position.x, y: current_position.y };
+                                break;
+                            case "circle":      // Circle
+                                unselect();
+                                cursorPosition = { x: current_position.x, y: current_position.y };
+                                break;
+                            case "line":        // Line
+                                unselect();
+                                break;
+                            default:
+                                break;
+                        }
                     }
                 });
 
-                $("svg#draw").on('pointermove', function (e) {
-                    e.preventDefault();
-                    let current_position = cursorPoint(e);
+                $("#content").on('pointermove', function (e) {
+                    if (e.buttons == 1 && e.originalEvent.isPrimary && outbound) {
+                        e.preventDefault();
+                        let current_position = cursorPoint(e);
 
-                    switch (app.type) {
-                        case "pen":         // Draw
-                            if (e.buttons == 1 && e.originalEvent.isPrimary) {
+                        switch (app.type) {
+                            case "pen":         // Draw
                                 if (!newPath) {
                                     coordinates.push({ x: current_position.x - e.originalEvent.movementX, y: current_position.y - e.originalEvent.movementY });
                                     coordinates.push({ x: current_position.x, y: current_position.y });
@@ -374,14 +366,14 @@
 
                                     newPath = document.createElementNS("http://www.w3.org/2000/svg", "path");
                                     newPath.setAttribute('id', uuidv4());
-                                    newPath.setAttribute('d', `M${simplifyNumber(coordinates[0].x)},${simplifyNumber(coordinates[0].y)}L${simplifyNumber(mid(coordinates[0], coordinates[1]).x)},${simplifyNumber((mid(coordinates[0], coordinates[1]).y))}`);
+                                    newPath.setAttribute('d', `M${simplifyNumber(coordinates[0].x)},${simplifyNumber(coordinates[0].y)}`);
                                     newPath.setAttribute('stroke', 'black');
                                     newPath.setAttribute('stroke-width', '5px');
                                     newPath.setAttribute('fill', 'transparent');
                                     newPath.setAttribute('stroke-linejoin', 'round');
                                     newPath.setAttribute('stroke-linecap', 'round');
 
-                                    $(this).append(newPath);
+                                    $("svg#draw").append(newPath);
                                 } else if (current_position.x != coordinates[1].x || current_position.y != coordinates[1].y) {
                                     coordinates.push({ x: current_position.x, y: current_position.y });
                                     coordinates = coordinates.slice(-3);
@@ -390,33 +382,31 @@
                                         `${newPath.getAttribute('d')}Q${simplifyNumber(coordinates[1].x)},${simplifyNumber(coordinates[1].y)},${simplifyNumber(mid(coordinates[1], coordinates[2]).x)},${simplifyNumber((mid(coordinates[1], coordinates[2]).y))}`
                                     );
                                 }
-                            }
-                            break;
-                        case "cursor":      // Move
-                            if (!choosen_id) break;
+                                break;
+                            case "cursor":      // Move
+                                if (!choosen_id) break;
 
-                            if (drag) {
-                                $(`#${choosen_id},#resize_wrap`).css('transform',
-                                    `translate(${current_position.x - cursorPosition.x}px,${current_position.y - cursorPosition.y}px)`
-                                );
-                            }
-                            else if (resize) {
-                                selected_border($(".choosen")[0].getBBox());
+                                if (drag) {
+                                    $(`#${choosen_id},#resize_wrap`).css('transform',
+                                        `translate(${current_position.x - cursorPosition.x}px,${current_position.y - cursorPosition.y}px)`
+                                    );
+                                }
+                                else if (resize) {
+                                    selected_border($(`#${choosen_id}`)[0].getBBox());
 
-                                differentPosition.x = current_position.x - (selected_info.x + selected_info.width);
-                                current_scale.x = (differentPosition.x + selected_info.width) / selected_info.width;
+                                    differentPosition.x = current_position.x - (selected_info.x + selected_info.width);
+                                    current_scale.x = (differentPosition.x + selected_info.width) / selected_info.width;
 
-                                $(`#${choosen_id}`).css(
-                                    'transform',
-                                    `translate(${selected_info.x}px,${selected_info.y}px) scale(${current_scale.x},${current_scale.y}) translate(-${selected_info.x}px,-${selected_info.y}px)`
-                                );
-                            }
-                            break;
-                        case "text":        // Textbox
+                                    $(`#${choosen_id}`).css(
+                                        'transform',
+                                        `translate(${selected_info.x}px,${selected_info.y}px) scale(${current_scale.x},${current_scale.y}) translate(-${selected_info.x}px,-${selected_info.y}px)`
+                                    );
+                                }
+                                break;
+                            case "text":        // Textbox
 
-                            break;
-                        case "rect":        // Rectangle
-                            if (e.buttons == 1 && e.originalEvent.isPrimary) {
+                                break;
+                            case "rect":        // Rectangle
                                 if ($.isEmptyObject(differentPosition)) {
                                     newPath = document.createElementNS("http://www.w3.org/2000/svg", "rect");
                                     newPath.setAttribute('id', uuidv4());
@@ -426,7 +416,7 @@
                                     newPath.setAttribute('stroke', 'black');
                                     newPath.setAttribute('stroke-width', '3px');
 
-                                    $(this).append(newPath);
+                                    $("svg#draw").append(newPath);
                                 }
 
                                 differentPosition = { x: current_position.x - cursorPosition.x, y: current_position.y - cursorPosition.y };
@@ -452,11 +442,8 @@
                                     newPath.setAttribute('width', differentPosition.x);
                                     newPath.setAttribute('height', differentPosition.y);
                                 }
-
-                            }
-                            break;
-                        case "circle":      // Circle
-                            if (e.buttons == 1 && e.originalEvent.isPrimary) {
+                                break;
+                            case "circle":      // Circle
                                 if (!newPath) { // check new elemen
                                     newPath = document.createElementNS("http://www.w3.org/2000/svg", "ellipse");
                                     newPath.setAttribute('id', uuidv4());
@@ -466,7 +453,7 @@
                                     newPath.setAttribute('stroke', 'black');
                                     newPath.setAttribute('stroke-width', '3px');
 
-                                    $(this).append(newPath);    // add into svg
+                                    $("svg#draw").append(newPath);    // add into svg
                                 }
 
                                 differentPosition = { x: Math.abs(current_position.x - cursorPosition.x), y: Math.abs(current_position.y - cursorPosition.y) };
@@ -495,10 +482,8 @@
                                     newPath.setAttribute('cx', cursorPosition.x + differentPosition.x / 2);
                                     newPath.setAttribute('cy', cursorPosition.y + differentPosition.y / 2);
                                 }
-                            }
-                            break;
-                        case "line":        // Line
-                            if (e.buttons == 1 && e.originalEvent.isPrimary) {
+                                break;
+                            case "line":        // Line
                                 if (!newPath) {
                                     let newPoint = comparePoint(current_position);
                                     cursorPosition = newPoint ? { x: newPoint.x, y: newPoint.y } :
@@ -512,19 +497,20 @@
                                     newPath.setAttribute('stroke-linejoin', 'round');
                                     newPath.setAttribute('stroke-linecap', 'round');
 
-                                    $(this).append(newPath);
+                                    $("svg#draw").append(newPath);
                                 }
                                 newPath.setAttribute('d', `M${cursorPosition.x},${cursorPosition.y},L${current_position.x},${current_position.y}`);
-                            }
-                            break;
-                        default:
-                            break;
+                                break;
+                            default:
+                                break;
+                        }
                     }
                 });
 
                 $("svg#draw").on('pointerup pointerleave', function (e) {
                     e.preventDefault();
                     let current_position = cursorPoint(e);
+                    outbound = false;
 
                     switch (app.type) {
                         case "pen":         // Draw
@@ -553,7 +539,7 @@
                                     $(`#${choosen_id}`).removeAttr('style');
                                     $(`#${choosen_id}`).attr('d', new_coord);
 
-                                    selected_border($(".choosen")[0].getBBox());
+                                    selected_border($(`#${choosen_id}`)[0].getBBox());
                                     $("#resize_wrap").removeAttr('style');
                                 }
                             }
@@ -600,14 +586,14 @@
                 $(document).on('keydown', function (e) {
                     if (e.keyCode == 8 || e.keyCode == 46 && choosen_id) {
                         $(`#${choosen_id}`).remove();
-                        app.unselect();
+                        unselect();
                     }
                 });
 
                 // Reset
                 $("svg").click(function (e) {
                     if (e.target.tagName != "path" && choosen_id) {
-                        app.unselect();
+                        unselect();
                     }
                 });
             }
@@ -618,6 +604,14 @@
         let secondsPassed;
         let oldTimeStamp;
         let fps;
+
+        function unselect() {
+            if (choosen_id) {
+                $(`#${choosen_id}`).removeAttr("class");
+                $("#resize_wrap").removeAttr('style').hide();
+                choosen_id = null;
+            }
+        }
 
         function update(timeStamp) {
             // Calculate the number of seconds passed since the last frame
