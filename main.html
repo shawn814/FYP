@@ -626,9 +626,9 @@
                 $('#fps').html(`${fps}`).css("color", "red");
 
             // RGB Stroke
-            $("#draw path:not(#resize_wrap *)").attr('stroke', `hsl(${rgb_H}, 100%, 50%)`);
-            rgb_H < 360 ? rgb_H++ : rgb_H = 0;
-            $("label#pen span").css("color", `hsl(${rgb_H}, 100%, 50%)`);
+            // $("#draw path:not(#resize_wrap *)").attr('stroke', `hsl(${rgb_H}, 100%, 50%)`);
+            // rgb_H < 360 ? rgb_H++ : rgb_H = 0;
+            // $("label#pen span").css("color", `hsl(${rgb_H}, 100%, 50%)`);
 
             window.requestAnimationFrame(update);
         }

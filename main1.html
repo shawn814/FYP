@@ -1,0 +1,899 @@
+<!DOCTYPE html>
+<html lang="en">
+<!-- Target
+1) Resize and movable
+2) Add Shape
+3) Add textbox-->
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Drawing</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            height: 100vh;
+            background-color: #333;
+        }
+
+        #main,
+        #content {
+            height: 100%;
+            width: 100%;
+        }
+
+        #content {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        #nav {
+            position: absolute;
+            z-index: 999999;
+            margin: 10px;
+            border-radius: 10px;
+            border: 1px solid #ccc;
+            box-shadow: 2px 2px 10px #ccc;
+            background-color: white;
+            user-select: none;
+        }
+
+        #nav * {
+            color: #333;
+            user-select: none;
+        }
+
+        #type label {
+            margin: 5px;
+            padding: 10px 13px;
+            display: block;
+            border-radius: 50%;
+        }
+
+        #type label:hover {
+            background-color: #ccc;
+        }
+
+        #type label:active {
+            background-color: #ddd;
+        }
+
+        #nav [type="radio"] {
+            display: none;
+        }
+
+        #type label.typeActive {
+            background-color: #333;
+            border-radius: 20px;
+        }
+
+        #type label.typeActive span {
+            color: white;
+        }
+
+        path.choosen {
+            cursor: move;
+        }
+
+        [v-cloak]>* {
+            display: none;
+        }
+
+        [v-cloak]::before {
+            content: "Loading...";
+            box-sizing: border-box;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 50px;
+            height: 50px;
+            margin-top: -10px;
+            margin-left: -10px;
+            border-radius: 50%;
+            border: 2px solid #ccc;
+            border-top-color: #333;
+            animation: spinner 0.8s linear infinite;
+            text-indent: 100%;
+            white-space: nowrap;
+            overflow: hidden;
+        }
+
+        @keyframes spinner {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        svg {
+            height: 744px;
+            width: 1052px;
+            touch-action: none;
+            position: absolute;
+        }
+
+        #draw {
+            border: 1px solid black;
+        }
+
+        #grid_wrap {
+            background-color: white;
+        }
+
+        #fps {
+            position: absolute;
+            right: 10px;
+            top: 10px;
+            font-size: 30px;
+            padding: 5px;
+            background-color: white;
+            font-family: latin;
+            font-weight: bold;
+            border: 1px solid black;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="fps">FPS</div>
+
+    <div id="main" v-cloak>
+        <div id="nav">
+            <!-- Creating radio buttons -->
+            <div id="type">
+                <label v-bind:class="{ typeActive: type=='pen' }" id="pen">
+                    <input type="radio" name="type" value="pen" v-model="type" v-on:change="menu">
+                    <span class="material-icons">edit</span>
+                </label>
+                <label v-bind:class="{ typeActive: type=='cursor' }" id="cursor">
+                    <input type="radio" name="type" value="cursor" v-model="type" v-on:change="menu">
+                    <span class="material-icons">open_with</span>
+                </label>
+                <label v-bind:class="{ typeActive: type=='text' }" id="text">
+                    <input type="radio" name="type" value="text" v-model="type" v-on:change="menu">
+                    <span class="material-icons">title</span>
+                </label>
+                <label v-bind:class="{ typeActive: type=='rect' }" id="rect">
+                    <input type="radio" name="type" value="rect" v-model="type" v-on:change="menu">
+                    <span class="material-icons">crop_5_4</span>
+                </label>
+                <label v-bind:class="{ typeActive: type=='circle' }" id="circle">
+                    <input type="radio" name="type" value="circle" v-model="type" v-on:change="menu">
+                    <span class="material-icons">panorama_fish_eye</span>
+                </label>
+                <label v-bind:class="{ typeActive: type=='line' }" id="line">
+                    <input type="radio" name="type" value="line" v-model="type" v-on:change="menu">
+                    <span class="material-icons">horizontal_rule</span>
+                </label>
+                <label v-bind:class="{ typeActive: type=='upload' }" id="upload">
+                    <input type="radio" name="type" value="upload" v-model="type" v-on:change="menu">
+                    <span class="material-icons">cloud_upload</span>
+                    <input type="file" name="file" id="file" hidden>
+                </label>
+                <label v-bind:class="{ typeActive: type=='save' }" id="save">
+                    <input type="radio" name="type" value="save" v-model="type" v-on:change="menu">
+                    <span class="material-icons">save</span>
+                </label>
+
+
+            </div>
+        </div>
+
+        <div id="content">
+            <svg id="grid_wrap" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                    <pattern id="smallGrid" width="8" height="8" patternUnits="userSpaceOnUse">
+                        <path d="M 8 0 L 0 0 0 8" fill="none" stroke="#cccccc" stroke-width="0.5" />
+                    </pattern>
+                    <pattern id="grid" width="80" height="80" patternUnits="userSpaceOnUse">
+                        <rect width="80" height="80" fill="url(#smallGrid)" />
+                        <path d="M 80 0 L 0 0 0 80" fill="none" stroke="#cccccc" stroke-width="1" />
+                    </pattern>
+                </defs>
+
+                <rect width="100%" height="100%" fill="url(#grid)" />
+            </svg>
+            <svg id="draw" viewBox="0 0 1052 744">
+                <g id="resize_wrap">
+                    <rect id="resize_border" fill="none" stroke="lightblue" stroke-width="1px" />
+                    <rect id="resize_nw" width="10" height="10" />
+                    <rect id="resize_n" width="10" height="10" />
+                    <rect id="resize_ne" width="10" height="10" />
+                    <rect id="resize_e" width="10" height="10" />
+                    <rect id="resize_se" width="10" height="10" />
+                    <rect id="resize_s" width="10" height="10" />
+                    <rect id="resize_sw" width="10" height="10" />
+                    <rect id="resize_w" width="10" height="10" />
+                </g>
+            </svg>
+            <canvas width="100%" height="100%"></canvas>
+        </div>
+    </div>
+
+    <script src="js/jquery.min.js"></script>
+    <script src="js/vue.js"></script>
+    <script src="js/image.js"></script>
+    <script>
+        "use strict"
+
+        let line_id = null;
+        let current_id = 0;
+        let choosenId = null;
+        let points = [];   // Used in Draw Line 
+
+        let rgb_H = 0;
+        let secondsPassed;
+        let oldTimeStamp;
+        let fps;
+
+        var app = new Vue({
+            el: '#main',
+            data: {
+                type: "pen",
+                code: ""
+            },
+            components: {
+
+            },
+            methods: {
+                menu: function () {
+                    let newPath = null;
+                    if (this.type == "cursor") {
+
+                        let cursorPosition = { x: 0.00, y: 0.00 };
+                        let differentPosition = { x: 0.00, y: 0.00 };
+                        let position = { x: 0.00, y: 0.00 };
+                        let scale = { x: 1.00, y: 1.00 };
+
+                        let current_position = { x: 0.00, y: 0.00 };
+                        let current_scale = { x: 1.00, y: 1.00 };
+
+                        let selected_info;
+                        let clickStatus = false;
+                        let dragable = false;
+                        let draged = false;
+                        let resizable = false;
+                        // Reset previous stuff and off listener
+                        $('svg').off('pointermove pointerout');
+                        $('svg').off('pointerup pointerleave');
+                        $("svg").off("click");
+
+
+
+
+                        $(document).on('keydown', function (e) {
+                            if (e.keyCode == 8 || e.keyCode == 46 && choosenId) {
+                                $(`#${choosenId}`).remove();
+                                $("#resize_wrap").hide();
+                                choosenId = null;
+                            }
+                        });
+
+                        $('svg *').on('pointerdown', function (e) {
+                            let loc = cursorPoint(e);
+                            if (e.target.tagName == "path") {
+                                if (choosenId) $(`#${choosenId}`).removeClass("choosen");
+
+                                choosenId = $(this).attr('id');
+                                $(`#${choosenId}`).addClass("choosen");
+
+                                if (e.target.classList.contains('choosen')) {
+                                    if (!resizable) dragable = true;
+
+                                    $('#resize_wrap').show();
+                                    selected_border($(".choosen")[0].getBBox());
+
+                                    let selected_css_value = $(`#${choosenId}`).css('transform');
+
+                                    if (selected_css_value != "none") {
+                                        let temp = selected_css_value.split(',');
+
+                                        position.x = parseInt(temp[4]);
+                                        position.y = parseInt(temp[5]);
+                                        scale.x = parseFloat(temp[0].split('(')[1]);
+                                        scale.y = temp[3];
+                                    } else {
+                                        position = { x: 0, y: 0 };
+                                    }
+
+                                    cursorPosition.x = loc.x;
+                                    cursorPosition.y = loc.y;
+                                }
+                            }
+                        });
+
+                        $('svg').on('pointermove', function (e) {
+                            let loc = cursorPoint(e);
+                            if (dragable) {
+                                differentPosition = { x: loc.x - cursorPosition.x, y: loc.y - cursorPosition.y };
+                                current_position = { x: position.x + differentPosition.x, y: position.y + differentPosition.y };
+
+                                $(`#${choosenId}`).css('transform', `translate(${current_position.x}px,${current_position.y}px)`);
+                                $('#resize_wrap').css('transform', `translate(${current_position.x}px,${current_position.y}px)`);
+
+                                draged = true;
+                            }
+                            else if (resizable) {
+                                selected_border($(".choosen")[0].getBBox());
+
+                                differentPosition.x = loc.x - (selected_info.x + selected_info.width);
+                                current_scale.x = (differentPosition.x + selected_info.width) / selected_info.width;
+
+                                $(`#${choosenId}`).css(
+                                    'transform',
+                                    `translate(${selected_info.x}px,${selected_info.y}px) scale(${current_scale.x},${current_scale.y}) translate(-${selected_info.x}px,-${selected_info.y}px)`
+                                );
+                            }
+                        });
+
+                        $('svg').on('pointerup pointerleave', function (e) {
+                            if (e.target.tagName == "path") {
+                                const selected_css_value = $(`#${choosenId}`).css('transform').split(',');
+
+                                if (selected_css_value != "none" && draged) {
+                                    position = { x: parseFloat(selected_css_value[4]), y: parseFloat(selected_css_value[5]) };
+
+                                    let coordinate = $(`#${choosenId}`).attr('d').substring(1).split("Q");
+                                    let new_css_value;
+
+                                    for (let i of coordinate) {
+                                        let temp2 = i.split(",");
+                                        if ($.isNumeric(temp2[0]) && $.isNumeric(temp2[1])) {
+                                            !new_css_value ?
+                                                new_css_value = `M${(parseFloat(temp2[0]) + position.x).toFixed(2)},${(parseFloat(temp2[1]) + position.y).toFixed(2)}` :
+                                                new_css_value += `Q${(parseFloat(temp2[0]) + position.x).toFixed(2)},${(parseFloat(temp2[1]) + position.y).toFixed(2)},${(parseFloat(temp2[2]) + position.x).toFixed(2)},${(parseFloat(temp2[3]) + position.y).toFixed(2)}`;
+                                        }
+                                    }
+                                    $(`#${choosenId}`).css('transform', '');
+                                    $(`#${choosenId}`).attr('d', new_css_value);
+
+                                    selected_border($(".choosen")[0].getBBox());
+                                    $("#resize_wrap").removeAttr('style')
+
+                                    draged = false;
+                                }
+                            }
+                            resizable = false;
+                            dragable = false;
+                        });
+
+                        // Resize =========================================================================
+                        $("#resize_nw").on('pointerdown', function (e) {
+
+                        });
+
+                        $("#resize_n").on('pointerdown', function (e) {
+
+                        });
+
+                        $("#resize_ne").on('pointerdown', function (e) {
+
+                        });
+
+                        $("#resize_e").on('pointerdown', function (e) {
+                            cursorPosition.x = e.clientX;
+                            cursorPosition.y = e.clientY;
+                            resizable = true;
+                            dragable = false;
+                        });
+
+                        $("#resize_se").on('pointerdown', function (e) {
+
+                        });
+
+                        $("#resize_s").on('pointerdown', function (e) {
+
+                        });
+
+                        $("#resize_sw").on('pointerdown', function (e) {
+
+                        });
+
+                        $("#resize_w").on('pointerdown', function (e) {
+
+                        });
+
+                        // Reset ==========================================================================================
+                        $('svg').on('click', function (e) {
+                            if (e.target.tagName != "path" && !dragable && !resizable && choosenId) {
+                                $(`#${choosenId}`).removeClass("choosen");
+                                $("#resize_wrap").removeAttr('style').hide();
+                                choosenId = null;
+                            }
+                        });
+                    }
+                    else if (this.type == "pen") {
+                        // Clear Select ===================================================================================
+                        if (choosenId) {
+                            $(`#${choosenId}`).removeClass("choosen");
+                            $("#resize_wrap").removeAttr('style').hide();
+                            choosenId = null;
+                        }
+
+                        // Drawing =========================================================================================
+                        let arr = [];
+                        let point = [];
+                        let d = "";
+                        let start = null;
+                        
+
+                        $('svg *').off('pointerdown');
+                        $('svg').off('pointermove pointerup click');
+                        $('canvas').on('pointerdown',function(e){
+                            console.log("canvas");  
+                        });
+                        $('svg').on('pointermove pointerout', function (e) {
+                            if (e.buttons == 1 && e.originalEvent.isPrimary) {
+                                let temp = cursorPoint(e);
+
+                                if (!line_id) {
+                                    start = { x: temp.x - e.originalEvent.movementX, y: temp.y - e.originalEvent.movementY };
+                                    arr.push(start);
+                                    point.push([start.x,start.y]);
+                                    line_id = uuidv4();
+
+                                }
+                                arr.push({ x: temp.x, y: temp.y });
+                                point.push([temp.x,temp.y]);
+                                arr = arr.slice(-2);
+                                let a = mid(arr[0],arr[1]);
+                                // let cpX = 2 * a.x - arr[0].x / 2 - arr[1].y / 2;
+                                // let cpY = 2 * a.y - arr[0].x / 2 - arr[1].y / 2;
+                                d += `Q${a.x},${a.y},${arr[1].x},${arr[1].y},`;
+
+                                // } else {
+                                //     arr.push({ x: temp.x, y: temp.y });
+                                //     arr = arr.slice(-3);
+                                //     let a = mid(arr[0], arr[1]);
+                                //     let b = mid(arr[1], arr[2]);
+                                //     let anywhereOnCurve = mid(a, b);
+                                //     // d += `Q${a.x},${a.y},${b.x},${b.y},`;
+                                //     let cpX = 2 * anywhereOnCurve.x - arr[0].x / 2 - arr[2].y / 2;
+                                //     let cpY = 2 * anywhereOnCurve.y - arr[0].x / 2 - arr[2].y / 2;
+                                    // d += `Q${cpX},${cpY},${arr[2].x},${arr[2].y},`;
+
+                                    // d += `L${arr[1].x},${arr[1].y},${arr[2].x},${arr[2].y},`;
+                                    // $(`#${line_id}`).attr("d",
+                                    //     `${$(`#${line_id}`).attr("d")}Q${simplifyNumber(arr[1].x)},${simplifyNumber(arr[1].y)},${simplifyNumber(arr[2].x)},${simplifyNumber(arr[2].y)}`
+                                    // );
+
+
+
+                                    // $(`#${line_id}`).attr("d",
+                                    //     `${$(`#${line_id}`).attr("d")}Q${simplifyNumber(a.x)},${simplifyNumber(a.y)},${simplifyNumber(b.x)},${simplifyNumber(b.y)}`
+                                    // );
+                                    // drawCurve(mid(arr[0], arr[1]), mid(arr[1], arr[2]));
+                                // }
+                            }
+                        });
+
+                        $('svg').on('pointerup pointerleave', function (e) {
+                            newPath = document.createElementNS("http://www.w3.org/2000/svg", "path");
+                            newPath.setAttribute('id', line_id);
+                            newPath.setAttribute('stroke', 'black');
+                            newPath.setAttribute('stroke-width', '5px');
+                            newPath.setAttribute('fill', 'transparent');
+                            newPath.setAttribute('stroke-linejoin', 'round');
+                            newPath.setAttribute('stroke-linecap', 'round');
+                            // $(this).append(svgPath(point, bezierCommand));
+                            // newPath.setAttribute("d", `M${start.x},${start.y},${d}`);
+                            newPath.setAttribute("d", svgPath(point, bezierCommand));
+
+                            $(this).append(newPath);
+                            newPath = null;
+                            line_id = null;
+                            arr = [];
+                            point = [];
+                            d = "";
+                            start = null;
+                        });
+                    }
+                    else if (this.type == "text") {
+                        $('svg').off('pointermove pointerout');
+                        $('svg').off('pointerup pointerleave');
+                        /*let textPosX = 0;
+                        let textPosY = 0;
+             
+                        $('svg').style.cursor = "text";
+             
+                        $('svg').on('mousedown', function (e) {
+                            text_id = uuidv4();
+                            textPosX = e.pageX;
+                            textPosY = e.pageY;
+             
+                            let newText = document.createElementNS("http://www.w3.org/2000/svg", "text");
+                            newText.setAttribute()
+                        })*/
+                    }
+                    else if (this.type == "rect") {
+                        let rect_id = null;
+                        let start = {};
+                        let dif = {};
+                        $("svg").off("pointerdown");
+                        $("svg").off("pointermove");
+                        $("svg").off("pointerup");
+
+                        $('svg').off('pointermove pointerout');
+                        $('svg').off('pointerup pointerleave');
+
+                        $("svg").off("click");
+
+
+                        // $("svg").css("cursor", "crosshair");
+
+                        $("svg").on("pointerdown", function (e) {
+                            rect_id = uuidv4();
+                            start = { x: cursorPoint(e).x, y: cursorPoint(e).y };
+                        });
+                        $("svg").on("pointermove", function (e) {
+                            if (e.buttons == 1 && e.originalEvent.isPrimary) {
+                                let cursor = cursorPoint(e);
+                                if ($.isEmptyObject(dif)) {
+                                    newPath = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+                                    newPath.setAttribute('id', rect_id);
+                                    newPath.setAttribute('x', start.x);
+                                    newPath.setAttribute('y', start.y);
+                                    newPath.setAttribute('fill', "transparent");
+                                    newPath.setAttribute('stroke', 'black');
+                                    newPath.setAttribute('stroke-width', '3px');
+                                }
+                                dif = { x: cursor.x - start.x, y: cursor.y - start.y };
+                                if (dif.x < 0 && dif.y < 0) {
+                                    newPath.setAttribute("x", cursor.x);
+                                    newPath.setAttribute("y", cursor.y);
+                                    newPath.setAttribute('width', start.x - cursor.x);
+                                    newPath.setAttribute('height', start.y - cursor.y);
+                                } else if (dif.x < 0) {
+                                    newPath.setAttribute("x", cursor.x);
+                                    newPath.setAttribute("y", start.y);
+                                    newPath.setAttribute("width", start.x - cursor.x);
+                                    newPath.setAttribute('height', dif.y);
+
+                                } else if (dif.y < 0) {
+                                    newPath.setAttribute("y", cursor.y);
+                                    newPath.setAttribute("x", start.x);
+                                    newPath.setAttribute('width', dif.x);
+                                    newPath.setAttribute('height', start.y - cursor.y);
+                                } else {
+                                    newPath.setAttribute("x", start.x);
+                                    newPath.setAttribute("y", start.y);
+                                    newPath.setAttribute('width', dif.x);
+                                    newPath.setAttribute('height', dif.y);
+                                }
+                                $(this).append(newPath);
+                            }
+                        });
+                        $("svg").on("pointerup", function (e) {
+                            newPath = null;
+                            rect_id = null;
+                            dif = null;
+                        });
+                    }
+                    else if (this.type == "circle") {
+                        let start = {};
+                        let dif = {};
+                        let circle_id = {};
+
+                        $("svg").off("pointerdown");
+                        $("svg").off("pointermove");
+                        $("svg").off("pointerup");
+
+
+                        $('svg').off('pointermove pointerout');
+                        $('svg').off('pointerup pointerleave');
+                        $("svg").off("click");
+
+                        $("svg").on("pointerdown", function (e) {
+                            circle_id = uuidv4();
+                            start = { x: cursorPoint(e).x, y: cursorPoint(e).y };
+                        });
+                        $("svg").on("pointermove", function (e) {
+                            if (e.buttons == 1 && e.originalEvent.isPrimary) {
+                                let cursor = cursorPoint(e);
+                                if ($.isEmptyObject(dif)) {
+                                    newPath = document.createElementNS("http://www.w3.org/2000/svg", "ellipse");
+                                    newPath.setAttribute('id', circle_id);
+                                    newPath.setAttribute('cx', start.x);
+                                    newPath.setAttribute('cy', start.y);
+                                    newPath.setAttribute('fill', "transparent");
+                                    newPath.setAttribute('stroke', 'black');
+                                    newPath.setAttribute('stroke-width', '3px');
+                                }
+                                dif = { x: cursor.x - start.x, y: cursor.y - start.y };
+                                if (dif.x < 0 && dif.y < 0) {
+                                    newPath.setAttribute('rx', start.x - cursor.x);
+                                    newPath.setAttribute('ry', start.y - cursor.y);
+                                } else if (dif.x < 0) {
+                                    newPath.setAttribute("rx", start.x - cursor.x);
+                                    newPath.setAttribute('ry', dif.y);
+
+                                } else if (dif.y < 0) {
+                                    newPath.setAttribute('rx', dif.x);
+                                    newPath.setAttribute('ry', start.y - cursor.y);
+                                } else {
+                                    newPath.setAttribute('rx', dif.x);
+                                    newPath.setAttribute('ry', dif.y);
+                                }
+                                $(this).append(newPath);
+                            }
+                        });
+                        $("svg").on("pointerup", function (e) {
+                            newPath = null;
+                            circle_id = null;
+                            dif = null;
+                        });
+                    }
+                    else if (this.type == "line") {
+                        $("svg").off("pointerdown");
+                        $("svg").off("pointermove");
+                        $("svg").off("pointerup");
+
+                        $('svg').off('pointermove pointerout');
+                        $('svg').off('pointerup pointerleave');
+
+                        $("svg").off("click");
+
+                        let start = {};
+                        let line_id = {};
+                        let cursor = null;
+
+                        $("svg").on("pointerdown", function (e) {
+                            line_id = uuidv4();
+                            cursor = cursorPoint(e);
+                            let newPoint = comparePoint(cursor);
+                            if (newPoint)
+                                start = { x: newPoint.x, y: newPoint.y }
+                            else
+                                start = { x: cursor.x, y: cursor.y };
+                        });
+                        $("svg").on("pointermove", function (e) {
+                            if (e.buttons == 1 && e.originalEvent.isPrimary) {
+                                cursor = cursorPoint(e);
+                                if (!newPath) {
+                                    newPath = document.createElementNS("http://www.w3.org/2000/svg", "path");
+                                    newPath.setAttribute('id', line_id);
+                                    newPath.setAttribute('fill', "transparent");
+                                    newPath.setAttribute('stroke', 'black');
+                                    newPath.setAttribute('stroke-width', '3px');
+                                    newPath.setAttribute('stroke-linejoin', 'round');
+                                    newPath.setAttribute('stroke-linecap', 'round');
+                                }
+                                newPath.setAttribute('d', `M${start.x},${start.y},L${cursor.x},${cursor.y}`);
+                                $(this).append(newPath);
+                            }
+                        });
+                        $("svg").on("pointerup", function (e) {
+                            let newPoint = comparePoint(cursor);
+                            if (newPoint)
+                                newPath.setAttribute('d', `M${start.x},${start.y},L${newPoint.x},${newPoint.y}`);
+                            points.push(start);
+                            points.push({ x: cursor.x, y: cursor.y });
+                            newPath = null;
+                            cursor = null;
+                            line_id = null;
+                        });
+
+                    }
+                    else if (this.type == "upload") {
+                        $("svg").off("pointerdown");
+                        $("svg").off("pointermove");
+                        $("svg").off("pointerup");
+
+
+                        $('svg').off('pointermove pointerout');
+                        $('svg').off('pointerup pointerleave');
+
+                        let image_id = uuidv4();
+
+
+                        $("#file").click();
+                        $('#file').change(async e => {
+                            let f = e.target.files[0];
+                            let svg = $('#draw').attr("viewBox").split(" ");
+                            if (f && f.type.startsWith('image/')) {
+                                // TODO: Use async-await syntax
+                                let url = await crop(f, svg[2], svg[3], 'dataURL', 'image/webp');
+                                newPath = document.createElementNS("http://www.w3.org/2000/svg", "image");
+                                newPath.setAttribute('id', image_id);
+                                newPath.setAttribute('href', url);
+                                $("#draw").append(newPath);
+                            }
+                            e.target.value = null;
+                            newPath = null;
+                        });
+                    }
+                    else if (this.type == "save") {
+                    }
+                }
+            },
+            computed: {
+
+            },
+            created() {
+                $("#resize_wrap").hide();
+            },
+            mounted() {
+                this.menu();
+                // RGB Stroke ================================================
+                window.requestAnimationFrame(drawLoop);
+
+                $("#draw").on('mousewheel keydown', function (e) {
+                    if (e.ctrlKey) {
+                        e.preventDefault();
+                        let scale = $("#draw,#grid_wrap")[0].getBoundingClientRect().width / $("#draw").width();
+                        if (e.originalEvent.wheelDelta / 120 > 0) {
+                            if (scale < 5) $("#draw,#grid_wrap").css("transform", `scale(${(scale + 0.05).toFixed(2)})`);
+                        } else {
+                            if (scale >= 0.1) $("#draw,#grid_wrap").css("transform", `scale(${(scale - 0.05).toFixed(2)})`);
+                        }
+                    }
+                })
+            }
+        });
+
+        function drawLoop(timeStamp) {
+            // Calculate the number of seconds passed since the last frame
+            secondsPassed = (timeStamp - oldTimeStamp) / 1000;
+            oldTimeStamp = timeStamp;
+
+            // Calculate fps
+            fps = Math.round(1 / secondsPassed);
+
+            // Display fps
+            fps > 20 ? $('#fps').html(`${fps}`).css("color", "green") :
+                $('#fps').html(`${fps}`).css("color", "red");
+
+            $("#draw path:not(#resize_wrap *)").attr('stroke', `hsl(${rgb_H}, 100%, 50%)`);
+            rgb_H < 360 ? rgb_H++ : rgb_H = 0;
+            $("label#pen span").css("color", `hsl(${rgb_H}, 100%, 50%)`);
+            window.requestAnimationFrame(drawLoop);
+        }
+
+        /* ==================================== Function ======================================== */
+        // Drawing function
+        function mid(a, b) {
+            return { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 };
+        }
+
+        function drawCurve(a, b) {
+            if (line_id) {
+                $(`#${line_id}`).attr("d",
+                    `${$(`#${line_id}`).attr("d")}Q${simplifyNumber(a.x)},${simplifyNumber(a.y)},${simplifyNumber(b.x)},${simplifyNumber(b.y)}`
+                );
+            }
+        }
+
+
+        function simplifyNumber(n) {
+            if (!$.isNumeric(n)) return;
+            return (n - Math.floor(n)) !== 0 ? n.toFixed(2) : n.toFixed(0);
+        }
+
+        // Reset selected border coordinate
+        function selected_border(selected_info) {
+            $("#resize_border").attr("x", selected_info.x - 5).attr("y", selected_info.y - 5).attr("width", selected_info.width + 10).attr("height", selected_info.height + 10);
+            $("#resize_nw").attr("x", selected_info.x - 10).attr("y", selected_info.y - 10).css("cursor", "nw-resize");
+            $("#resize_n").attr("x", selected_info.x + (selected_info.width / 2) - 5).attr("y", selected_info.y - 10).css("cursor", "n-resize");
+            $("#resize_ne").attr("x", selected_info.x + selected_info.width).attr("y", selected_info.y - 10).css("cursor", "ne-resize");
+            $("#resize_e").attr("x", selected_info.x + selected_info.width).attr("y", selected_info.y + (selected_info.height / 2) - 5).css("cursor", "e-resize");
+            $("#resize_se").attr("x", selected_info.x + selected_info.width).attr("y", selected_info.y + selected_info.height).css("cursor", "se-resize");
+            $("#resize_s").attr("x", selected_info.x + (selected_info.width / 2) - 5).attr("y", selected_info.y + selected_info.height).css("cursor", "s-resize");
+            $("#resize_sw").attr("x", selected_info.x - 10).attr("y", selected_info.y + selected_info.height).css("cursor", "sw-resize");
+            $("#resize_w").attr("x", selected_info.x - 10).attr("y", selected_info.y + (selected_info.height / 2) - 5).css("cursor", "w-resize");
+        }
+
+        function uuidv4() {
+            return ([1e7] + -1e3 + -4e3 + -8e3 + -1e11).replace(/[018]/g, c =>
+                (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)
+            );
+        }
+
+        // Get the nearest point
+        function comparePoint(cursor) {
+            let pointReturn = null;
+            for (var point of points) {
+                if (cursor.x >= point.x - 10 && cursor.x <= point.x + 10 && cursor.y >= point.y - 10 && cursor.y <= point.y + 10) {
+                    pointReturn = point;
+                }
+            }
+            return pointReturn;
+        }
+
+        // The smoothing ratio
+        const smoothing = 0.2
+
+        // Find your root SVG element
+        let svg = document.querySelector('svg');
+
+        // Create an SVGPoint for future math
+        let pt = svg.createSVGPoint();
+
+        // Get point in global SVG space
+        function cursorPoint(evt) {
+            pt.x = evt.clientX; pt.y = evt.clientY;
+            return pt.matrixTransform(svg.getScreenCTM().inverse());
+        }
+
+        // Properties of a line 
+        // I:  - pointA (array) [x,y]: coordinates
+        //     - pointB (array) [x,y]: coordinates
+        // O:  - (object) { length: l, angle: a }: properties of the line
+        const line = (pointA, pointB) => {
+            const lengthX = pointB[0] - pointA[0]
+            const lengthY = pointB[1] - pointA[1]
+            return {
+                length: Math.sqrt(Math.pow(lengthX, 2) + Math.pow(lengthY, 2)),
+                angle: Math.atan2(lengthY, lengthX)
+            }
+        }
+
+        // Position of a control point 
+        // I:  - current (array) [x, y]: current point coordinates
+        //     - previous (array) [x, y]: previous point coordinates
+        //     - next (array) [x, y]: next point coordinates
+        //     - reverse (boolean, optional): sets the direction
+        // O:  - (array) [x,y]: a tuple of coordinates
+        const controlPoint = (current, previous, next, reverse) => {
+
+            // When 'current' is the first or last point of the array
+            // 'previous' or 'next' don't exist.
+            // Replace with 'current'
+            const p = previous || current
+            const n = next || current
+
+            // Properties of the opposed-line
+            const o = line(p, n)
+
+            // If is end-control-point, add PI to the angle to go backward
+            const angle = o.angle + (reverse ? Math.PI : 0)
+            const length = o.length * smoothing
+
+            // The control point position is relative to the current point
+            const x = current[0] + Math.cos(angle) * length
+            const y = current[1] + Math.sin(angle) * length
+            return [x, y]
+        }
+
+        // Create the bezier curve command 
+        // I:  - point (array) [x,y]: current point coordinates
+        //     - i (integer): index of 'point' in the array 'a'
+        //     - a (array): complete array of points coordinates
+        // O:  - (string) 'C x2,y2 x1,y1 x,y': SVG cubic bezier C command
+        const bezierCommand = (point, i, a) => {
+
+            // start control point
+            const cps = controlPoint(a[i - 1], a[i - 2], point)
+
+            // end control point
+            const cpe = controlPoint(point, a[i - 1], a[i + 1], true)
+            return `C ${cps[0]},${cps[1]} ${cpe[0]},${cpe[1]} ${point[0]},${point[1]}`
+        }
+
+        // Render the svg <path> element 
+        // I:  - points (array): points coordinates
+        //     - command (function)
+        //       I:  - point (array) [x,y]: current point coordinates
+        //           - i (integer): index of 'point' in the array 'a'
+        //           - a (array): complete array of points coordinates
+        //       O:  - (string) a svg path command
+        // O:  - (string): a Svg <path> element
+        const svgPath = (points, command) => {
+            // build the d attributes by looping over the points
+            const d = points.reduce((acc, point, i, a) => i === 0
+                ? `M ${point[0]},${point[1]}`
+                : `${acc} ${command(point, i, a)}`
+                , '')
+            // return `<path d="${d}" fill="none" stroke="grey" stroke-width="5px" />`
+            return d;
+        }
+
+    </script>
+</body>
+
+</html>
