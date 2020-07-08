@@ -276,6 +276,14 @@ let app = new Vue({
 
             switch (app.type) {
                 case "pen":         // Draw
+                    if (newPath) {
+                        coordinates.push({ x: current_position.x, y: current_position.y });
+                        coordinates = coordinates.slice(-3);
+
+                        newPath.setAttribute('d',
+                            `${newPath.getAttribute('d')}Q${simplifyNumber(mid(coordinates[1], coordinates[2]).x)},${simplifyNumber((mid(coordinates[1], coordinates[2]).y))},${simplifyNumber(coordinates[2].x)},${simplifyNumber(coordinates[2].y)},`
+                        );
+                    }
                     coordinates = [];
                     newPath = null;
                     break;
