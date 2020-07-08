@@ -89,7 +89,7 @@ let app = new Vue({
         let drag = false;
         let resize = false;
 
-        let svgDraw = document.querySelector('svg#draw')
+        let svgDraw = document.querySelector('svg#draw');
 
         window.requestAnimationFrame(update); // update by frame
 
@@ -103,7 +103,8 @@ let app = new Vue({
                         unselect();
                         break;
                     case "cursor":      // Move
-                        if (e.target.tagName == "path") {
+                        if (e.target.tagName == "path" || e.target.tagName == "rect" || e.target.tagName == "ellipse" || e.target.tagname == "text" || e.target.tagName == "image") {
+                            if (e.target.id == "resize_border" || e.target.classList.contains("notMoveable")) break;
                             choosen_id = e.target.id;
                             $('#resize_wrap').show();
                             selected_border($(`#${choosen_id}`)[0].getBBox());
@@ -193,6 +194,9 @@ let app = new Vue({
 
                         differentPosition = { x: current_position.x - cursorPosition.x, y: current_position.y - cursorPosition.y };
 
+                        // if (e.shiftKey) differentPosition.x > differentPosition.y ? differentPosition.y = differentPosition.x : differentPosition.x = differentPosition.y
+
+
                         if (differentPosition.x < 0 && differentPosition.y < 0) {
                             newPath.setAttribute("x", current_position.x);
                             newPath.setAttribute("y", current_position.y);
@@ -219,6 +223,8 @@ let app = new Vue({
                         if (!newPath) { // check new elemen
                             newPath = document.createElementNS("http://www.w3.org/2000/svg", "ellipse");
                             newPath.setAttribute('id', uuidv4());
+                           
+
                             newPath.setAttribute('cx', cursorPosition.x);
                             newPath.setAttribute('cy', cursorPosition.y);
 
@@ -258,11 +264,13 @@ let app = new Vue({
                             cursorPosition = newPoint ? { x: newPoint.x, y: newPoint.y } : { x: current_position.x, y: current_position.y };
                             newPath = document.createElementNS("http://www.w3.org/2000/svg", "path");
                             newPath.setAttribute('id', uuidv4());
+                            newPath.setAttribute('class', "straightLine");
+
 
                             $("svg#draw").append(newPath);
                         }
                         newPoint ? newPath.setAttribute('d', `M${cursorPosition.x},${cursorPosition.y},L${newPoint.x},${newPoint.y}`) :
-                                   newPath.setAttribute('d', `M${cursorPosition.x},${cursorPosition.y},L${current_position.x},${current_position.y}`);
+                            newPath.setAttribute('d', `M${cursorPosition.x},${cursorPosition.y},L${current_position.x},${current_position.y}`);
                         break;
                     default:
                         break;
@@ -288,26 +296,63 @@ let app = new Vue({
                     newPath = null;
                     break;
                 case "cursor":      // Move
-                    if (e.target.tagName == "path" && choosen_id) {
+                    if (choosen_id) {
                         const selected_css_value = $(`#${choosen_id}`).css('transform').split(',');
 
                         if (drag && selected_css_value != "none") {
                             position = { x: parseFloat(selected_css_value[4]), y: parseFloat(selected_css_value[5]) };
 
-                            const coord = $(`#${choosen_id}`).attr('d').substring(1).split("Q");
-                            let new_coord;
+                            switch (e.target.tagName) {
+                                case 'path':
+                                    let new_coord;
 
-                            let i
-                            for (i of coord) {
-                                let coord_xy = i.split(",");
-                                if ($.isNumeric(coord_xy[0]) && $.isNumeric(coord_xy[1])) {
-                                    !new_coord ?
-                                        new_coord = `M${(parseFloat(coord_xy[0]) + position.x).toFixed(2)},${(parseFloat(coord_xy[1]) + position.y).toFixed(2)}` :
-                                        new_coord += `Q${(parseFloat(coord_xy[0]) + position.x).toFixed(2)},${(parseFloat(coord_xy[1]) + position.y).toFixed(2)},${(parseFloat(coord_xy[2]) + position.x).toFixed(2)},${(parseFloat(coord_xy[3]) + position.y).toFixed(2)}`;
-                                }
+                                    if (e.target.classList.contains("straightLine")) {
+                                        const coord = $(`#${choosen_id}`).attr('d').substring(1).split("L");
+                                        for(let i of coord){
+                                            let coord_xy = i.split(",");
+                                            console.log(coord_xy);
+                                            if ($.isNumeric(coord_xy[0]) && $.isNumeric(coord_xy[1])) {
+                                                !new_coord ?
+                                                    new_coord = `M${(parseFloat(coord_xy[0]) + position.x).toFixed(2)},${(parseFloat(coord_xy[1]) + position.y).toFixed(2)},` :
+                                                    new_coord += `L${(parseFloat(coord_xy[0]) + position.x).toFixed(2)},${(parseFloat(coord_xy[1]) + position.y).toFixed(2)}`;
+                                            }
+                                        }
+                                    } 
+                                    else {
+                                        const coord = $(`#${choosen_id}`).attr('d').substring(1).split("Q");
+                                        let i
+                                        for (i of coord) {
+                                            let coord_xy = i.split(",");
+                                            if ($.isNumeric(coord_xy[0]) && $.isNumeric(coord_xy[1])) {
+                                                !new_coord ?
+                                                    new_coord = `M${(parseFloat(coord_xy[0]) + position.x).toFixed(2)},${(parseFloat(coord_xy[1]) + position.y).toFixed(2)}` :
+                                                    new_coord += `Q${(parseFloat(coord_xy[0]) + position.x).toFixed(2)},${(parseFloat(coord_xy[1]) + position.y).toFixed(2)},${(parseFloat(coord_xy[2]) + position.x).toFixed(2)},${(parseFloat(coord_xy[3]) + position.y).toFixed(2)}`;
+                                            }
+                                        }
+                                    }
+                                    $(`#${choosen_id}`).attr('d', new_coord);
+                                    break;
+                                case 'rect':
+                                    $(`#${choosen_id}`).attr('x', Number($(`#${choosen_id}`).attr('x')) + position.x);
+                                    $(`#${choosen_id}`).attr('y', Number($(`#${choosen_id}`).attr('y')) + position.y);
+                                    break;
+
+
+                                case 'ellipse':
+                                    $(`#${choosen_id}`).attr('cx', Number($(`#${choosen_id}`).attr('cx')) + position.x);
+                                    $(`#${choosen_id}`).attr('cy', Number($(`#${choosen_id}`).attr('cy')) + position.y);
+                                    break;
+
+
+                                case 'image':
+                                    break;
+
+                                default:
+                                    break;
                             }
+
                             $(`#${choosen_id}`).removeAttr('style');
-                            $(`#${choosen_id}`).attr('d', new_coord);
+
 
                             selected_border($(`#${choosen_id}`)[0].getBBox());
                             $("#resize_wrap").removeAttr('style');
@@ -361,7 +406,7 @@ let app = new Vue({
 
         // Reset
         $("svg").click(function (e) {
-            if (e.target.tagName != "path" && choosen_id) {
+            if (e.target.tagName != "path" && choosen_id &&  e.target.tagName != "rect" && e.target.tagName != "ellipse" && e.target.tagname != "text" && e.target.tagName != "image") {
                 unselect();
             }
         });
@@ -376,7 +421,11 @@ let fps;
 
 function unselect() {
     if (choosen_id) {
-        $(`#${choosen_id}`).removeAttr("class");
+        // $(`#${choosen_id}`).removeAttr("class");
+
+        // If want delete certain class
+        // $(`#${choosen_id}`).removeClass("class");
+
         $("#resize_wrap").removeAttr('style').hide();
         choosen_id = null;
     }
@@ -392,7 +441,7 @@ function update(timeStamp) {
 
     // Display fps
     fps > 20 ? $('#fps').html(`${fps}`).css("color", "green") :
-               $('#fps').html(`${fps}`).css("color", "red");
+        $('#fps').html(`${fps}`).css("color", "red");
 
     // RGB Stroke
     // $("#draw path:not(#resize_wrap *)").attr('stroke', `hsl(${rgb_H}, 100%, 50%)`);
